@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gear_ghar/common/my_button.dart';
 
 class SecondSplashScreen extends StatelessWidget {
   const SecondSplashScreen({super.key});
@@ -6,6 +7,7 @@ class SecondSplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFD0D0D0),
       body: SafeArea(
         child: Center(
           child: Column(
@@ -14,13 +16,22 @@ class SecondSplashScreen extends StatelessWidget {
 
               Text(
                 'Where Bikes Are Made',
-                style: TextStyle(fontFamily: 'Jersey25', fontSize: 25),
+                style: TextStyle(
+                  fontFamily: 'Jersey25',
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 'And Dreams Come True',
-                style: TextStyle(fontFamily: 'Jersey25', fontSize: 25),
+                style: TextStyle(
+                  fontFamily: 'Jersey25',
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Image.asset('assets/images/logo.png', width: 270),
+              MyButton(onPressed: () {}, text: 'Get Started', fontSize: 30),
             ],
           ),
         ),
