@@ -18,7 +18,7 @@ class SecondSplashScreen extends StatelessWidget {
                 'Where Bikes Are Made',
                 style: TextStyle(
                   fontFamily: 'Jersey25',
-                  fontSize: 30,
+                  fontSize: 39,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -26,11 +26,12 @@ class SecondSplashScreen extends StatelessWidget {
                 'And Dreams Come True',
                 style: TextStyle(
                   fontFamily: 'Jersey25',
-                  fontSize: 30,
+                  fontSize: 39,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Image.asset('assets/images/logo.png', width: 270),
+              SizedBox(height: 200),
               MyButton(onPressed: () {}, text: 'Get Started', fontSize: 30),
             ],
           ),
