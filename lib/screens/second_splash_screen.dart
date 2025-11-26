@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gear_ghar/common/my_button.dart';
+import 'package:gear_ghar/screens/login_screen.dart';
 
 class SecondSplashScreen extends StatelessWidget {
   const SecondSplashScreen({super.key});
@@ -32,7 +33,18 @@ class SecondSplashScreen extends StatelessWidget {
               ),
               Image.asset('assets/images/logo.png', width: 270),
               SizedBox(height: 200),
-              MyButton(onPressed: () {}, text: 'Get Started', fontSize: 30),
+              MyButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+                text: 'Get Started',
+                fontSize: 30,
+              ),
             ],
           ),
         ),
