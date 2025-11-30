@@ -33,7 +33,7 @@ class VaScreen extends StatelessWidget {
               Positioned(
                 left: 14,
                 top: 25,
-                child: Container(
+                child: SizedBox(
                   width: 275,
                   height: 154,
                   child: Stack(
@@ -164,7 +164,7 @@ class VaScreen extends StatelessWidget {
               Positioned(
                 left: 11.22,
                 top: 188,
-                child: Container(
+                child: SizedBox(
                   width: 277.78,
                   height: 31.69,
                   child: Stack(
@@ -225,7 +225,7 @@ class VaScreen extends StatelessWidget {
               Positioned(
                 left: 14,
                 top: 234.49,
-                child: Container(
+                child: SizedBox(
                   width: 284,
                   height: 42.49,
                   child: Stack(
@@ -266,7 +266,7 @@ class VaScreen extends StatelessWidget {
             ],
           ),
         ),
-        Container(
+        SizedBox(
           width: 318,
           height: 20,
           child: Stack(
@@ -319,7 +319,7 @@ class VaScreen extends StatelessWidget {
             ],
           ),
         ),
-        Container(
+        SizedBox(
           width: 312,
           height: 48,
           child: Stack(
@@ -368,7 +368,7 @@ class VaScreen extends StatelessWidget {
             ],
           ),
         ),
-        Container(
+        SizedBox(
           width: 312,
           height: 48,
           child: Stack(
@@ -426,7 +426,7 @@ class VaScreen extends StatelessWidget {
             height: 0,
           ),
         ),
-        Container(
+        SizedBox(
           width: 250.03,
           height: 23.46,
           child: Stack(
@@ -469,6 +469,6 @@ class VaScreen extends StatelessWidget {
           ),
         ),
       ],
-    );;
+    );
   }
 }

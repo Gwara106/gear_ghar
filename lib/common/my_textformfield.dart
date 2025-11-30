@@ -4,29 +4,52 @@ class MyTextformfield extends StatelessWidget {
   const MyTextformfield({
     super.key,
     required this.labelText,
-    required this.hintText,
     required this.controller,
     this.width,
     this.color,
+    this.labelStyle,
+    this.obscureText = false,
+    this.suffixIcon,
   });
 
   final String labelText;
-  final String hintText;
   final TextEditingController controller;
   final double? width;
   final Color? color;
+  final TextStyle? labelStyle;
+  final bool obscureText;
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width ?? 350, // applies width if provided
+      width: width ?? 350,
       child: TextFormField(
         controller: controller,
+        obscureText: obscureText,
         decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          filled: true,
+          fillColor: const Color(0xFF535353),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.black, width: 1),
+          ),
           labelText: labelText,
-          hintText: hintText,
-          fillColor: color ?? const Color.fromARGB(255, 255, 255, 255),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: color ?? Colors.black, width: 1),
+          ),
+
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          labelStyle:
+              labelStyle ??
+              TextStyle(
+                fontFamily: 'Jersey25',
+                color: Color(0xFFBDBDBD),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              suffixIcon: suffixIcon,
         ),
       ),
     );

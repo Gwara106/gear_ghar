@@ -44,6 +44,7 @@ class SecondSplashScreen extends StatelessWidget {
                 },
                 text: 'Get Started',
                 fontSize: 30,
+                height: 70,
               ),
             ],
           ),
