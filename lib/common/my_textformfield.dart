@@ -10,6 +10,7 @@ class MyTextformfield extends StatelessWidget {
     this.labelStyle,
     this.obscureText = false,
     this.suffixIcon,
+    required this.validator,
   });
 
   final String labelText;
@@ -19,6 +20,7 @@ class MyTextformfield extends StatelessWidget {
   final TextStyle? labelStyle;
   final bool obscureText;
   final Widget? suffixIcon;
+  final String? Function(String?) validator;
 
   @override
   Widget build(BuildContext context) {
@@ -32,25 +34,24 @@ class MyTextformfield extends StatelessWidget {
           fillColor: const Color(0xFF535353),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.black, width: 1),
+            borderSide: const BorderSide(color: Colors.black, width: 1),
           ),
           labelText: labelText,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: color ?? Colors.black, width: 1),
           ),
-
           floatingLabelBehavior: FloatingLabelBehavior.never,
-          labelStyle:
-              labelStyle ??
-              TextStyle(
+          labelStyle: labelStyle ??
+              const TextStyle(
                 fontFamily: 'Jersey25',
                 color: Color(0xFFBDBDBD),
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
-              suffixIcon: suffixIcon,
+          suffixIcon: suffixIcon,
         ),
+        validator: validator,
       ),
     );
   }

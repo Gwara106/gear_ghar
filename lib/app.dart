@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gear_ghar/screens/home_screen.dart';
+import 'package:gear_ghar/screens/login_screen.dart';
 import 'package:gear_ghar/screens/splash_screen.dart';
 
 class App extends StatelessWidget {
