@@ -11,42 +11,60 @@ class SecondSplashScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFD0D0D0),
       body: SafeArea(
         child: Center(
-          child: Column(
-            children: [
-              SizedBox(height: 200),
+          child: SingleChildScrollView(
+            // ✅ prevents overflow on tablets
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20), // smaller padding
 
-              Text(
-                'Where Bikes Are Made',
-                style: TextStyle(
-                  fontFamily: 'Jersey25',
-                  fontSize: 39,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  'Where Bikes Are Made',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'Jersey25',
+                    fontSize: 36, // slightly responsive
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                'And Dreams Come True',
-                style: TextStyle(
-                  fontFamily: 'Jersey25',
-                  fontSize: 39,
-                  fontWeight: FontWeight.bold,
+
+                Text(
+                  'And Dreams Come True',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'Jersey25',
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Image.asset('assets/images/logo.png', width: 270),
-              SizedBox(height: 200),
-              MyButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
-                },
-                text: 'Get Started',
-                fontSize: 30,
-                height: 70,
-              ),
-            ],
+
+                const SizedBox(height: 10),
+
+                Image.asset(
+                  'assets/images/logo.png',
+                  width:
+                      MediaQuery.of(context).size.width * 0.4, // ✅ responsive
+                ),
+
+
+
+                MyButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  },
+                  text: 'Get Started',
+                  fontSize: 28,
+                  height: 65,
+                ),
+
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),

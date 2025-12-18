@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:gear_ghar/common/my_button.dart';
 import 'package:gear_ghar/common/my_textformfield.dart';
 import 'package:gear_ghar/screens/login_screen.dart';
 
@@ -14,7 +13,7 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController Emailcontroller = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isPasswordVisible = false;
@@ -71,7 +70,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         _buildLabel('Email'),
                         MyTextformfield(
                           labelText: 'example@gmail.com',
-                          controller: Emailcontroller,
+                          controller: _emailController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your email';
@@ -129,7 +128,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
-                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                _isConfirmPasswordVisible =
+                                    !_isConfirmPasswordVisible;
                               });
                             },
                             icon: Icon(
@@ -141,7 +141,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
                           child: Row(
                             children: [
                               Checkbox(
@@ -179,7 +182,9 @@ class _SignupScreenState extends State<SignupScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5),
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                               ),
                               child: _isLoading
                                   ? const SizedBox(
@@ -187,7 +192,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
                                     )
                                   : const Text(
@@ -225,12 +233,37 @@ class _SignupScreenState extends State<SignupScreen> {
                                   ),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const LoginScreen(),
-                                        ),
-                                      );
+                                      void _showSuccessDialog() {
+                                        if (!mounted) return;
+                                        
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: const Text('Success'),
+                                              content: const Text('Your account has been created successfully!'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                    if (mounted) {
+                                                      Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => const LoginScreen(),
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: const Text('OK'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+                                      _showSuccessDialog();
                                     },
                                 ),
                               ],
@@ -274,7 +307,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (!_agreeToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please agree to the Terms and Conditions')),
+        const SnackBar(
+          content: Text('Please agree to the Terms and Conditions'),
+        ),
       );
       return;
     }
@@ -290,12 +325,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created successfully! Please login.')),
+        const SnackBar(
+          content: Text('Account created successfully! Please login.'),
+        ),
       );
     });
   }
@@ -303,7 +338,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    Emailcontroller.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();

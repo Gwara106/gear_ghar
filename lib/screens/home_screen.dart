@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gear_ghar/providers/product_provider.dart';
 import 'package:gear_ghar/widgets/category_sidebar.dart';
 import 'package:gear_ghar/widgets/product_card.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,46 +13,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  int _selectedIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
   int _selectedCategoryIndex = 0;
-
-  final List<String> categories = [
-    'All Items',
-    'Helmets',
-    'Gloves',
-    'Jackets',
-    'Accessories',
-    'Tyres',
-    'Handlebars',
-    'Exhausts',
-  ];
-
-  // product data
-  final List<Map<String, dynamic>> products = [
-    {
-      'name': 'Akrapovic Exhaust/ S...',
-      'category': 'Exhaust',
-      'price': 'Rs. 5000',
-      'imageUrl': 'assets/Product_Image/exhaust1.png',
-      'rating': 5.0,
-      'isFavorite': false,
-    },
-    {
-      'name': '450 Handle Bar Risers',
-      'category': 'Handle Bar',
-      'price': 'Rs. 4,345',
-      'imageUrl': 'assets/Product_Image/450handlebar.png',
-      'rating': 4.5,
-      'isFavorite': true,
-    },
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  String _searchQuery = '';
 
   void _toggleSidebar() {
     if (_scaffoldKey.currentState!.isDrawerOpen) {
@@ -62,6 +27,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final productProvider = Provider.of<ProductProvider>(context);
+    final categories = productProvider.categories;
+    
+    // First filter by category
+    List<Map<String, dynamic>> filteredProducts = _selectedCategoryIndex == 0
+        ? List.from(productProvider.products)
+        : productProvider.getProductsByCategory(categories[_selectedCategoryIndex]);
+    
+    // Then filter by search query if it exists
+    if (_searchQuery.isNotEmpty) {
+      filteredProducts = filteredProducts.where((product) {
+        final name = product['name'].toString().toLowerCase();
+        final category = product['category'].toString().toLowerCase();
+        return name.contains(_searchQuery) || category.contains(_searchQuery);
+      }).toList();
+    }
     return Scaffold(
       backgroundColor: Color(0xFFD0D0D0),
       key: _scaffoldKey,
@@ -81,12 +62,29 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(25),
           ),
-          child: const TextField(
+          child: TextField(
+            controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Search for items...',
-              prefixIcon: Icon(Icons.search, color: Colors.grey),
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
               border: InputBorder.none,
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _searchQuery = '';
+                        });
+                      },
+                    )
+                  : null,
             ),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value.toLowerCase();
+              });
+            },
           ),
         ),
         actions: [
@@ -103,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Category Chips
               // Category Chips
               Container(
                 height: 60,
@@ -150,77 +149,51 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // Products Grid
-              GridView.builder(
-                padding: const EdgeInsets.all(8.0),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.70,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final p = products[index];
-                  return ProductCard(
-                    name: p['name'],
-                    category: p['category'],
-                    price: p['price'],
-                    imageUrl: p['imageUrl'],
-                    rating: p['rating'],
-                    isFavorite: p['isFavorite'],
-                    onFavoritePressed: () {
-                      setState(() {
-                        products[index]['isFavorite'] =
-                            !products[index]['isFavorite'];
-                      });
-                    },
-                    onTap: () {},
-                  );
-                },
-              ),
+              filteredProducts.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'No products found in this category',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    )
+                  : GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(8.0),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.7,
+                        crossAxisSpacing: 8.0,
+                        mainAxisSpacing: 8.0,
+                      ),
+                      itemCount: filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = filteredProducts[index];
+                        final productIndex = productProvider.products.indexOf(product);
+                        return ProductCard(
+                          name: product['name'],
+                          category: product['category'],
+                          price: product['price'],
+                          imageUrl: product['imageUrl'],
+                          rating: product['rating'],
+                          isFavorite: product['isFavorite'],
+                          onFavoritePressed: () {
+                            productProvider.toggleFavorite(productIndex);
+                          },
+                          onTap: () {
+                            // Handle product tap
+                          },
+                        );
+                      },
+                    ),
             ],
           ),
         ),
       ),
 
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              offset: Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border),
-              label: "Favourite",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: "Profile",
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.black,
-          onTap: _onItemTapped,
-        ),
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.shopping_cart, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
     );
   }

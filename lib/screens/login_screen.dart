@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:gear_ghar/common/my_button.dart';
 import 'package:gear_ghar/common/my_textformfield.dart';
-import 'package:gear_ghar/screens/home_screen.dart';
 import 'package:gear_ghar/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -14,8 +13,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController Emailcontroller = TextEditingController();
-  final TextEditingController Passwordcontroller = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   bool rememberMe = false;
   bool _isPasswordVisible = false;
@@ -28,12 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Future.delayed(const Duration(seconds: 1), () {
         setState(() => _isLoading = false);
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
+        Navigator.pushReplacementNamed(context, '/main');
       });
     }
   }
@@ -72,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         _buildLabel('Email'),
                         MyTextformfield(
                           labelText: 'example@gmail.com',
-                          controller: Emailcontroller,
+                          controller: _emailController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your email';
@@ -87,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         _buildLabel('Password'),
                         MyTextformfield(
                           labelText: '*********',
-                          controller: Passwordcontroller,
+                          controller: _passwordController,
                           obscureText: !_isPasswordVisible,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
