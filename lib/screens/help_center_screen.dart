@@ -125,57 +125,61 @@ class HelpCenterScreen extends StatelessWidget {
   }
 
   Widget _buildReturnsTab() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const _HelpSectionItem(
-          title: 'Start a Return',
-          description: 'Initiate a return for items you\'re not completely satisfied with.',
-        ),
-        const _HelpSectionItem(
-          title: 'Return Policy',
-          description: 'Learn about our return policy and conditions.',
-        ),
-        const _HelpSectionItem(
-          title: 'Return Status',
-          description: 'Track the status of your return and refund.',
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Need Help with Returns?',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+    return Builder(
+      builder: (BuildContext context) {
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const _HelpSectionItem(
+              title: 'Start a Return',
+              description: 'Initiate a return for items you\'re not completely satisfied with.',
+            ),
+            const _HelpSectionItem(
+              title: 'Return Policy',
+              description: 'Learn about our return policy and conditions.',
+            ),
+            const _HelpSectionItem(
+              title: 'Return Status',
+              description: 'Track the status of your return and refund.',
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Card(
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Need Help with Returns?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Our customer service team is here to help with any return-related questions.',
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            _showContactOptions(context);
+                          },
+                          child: const Text('Contact Support'),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Our customer service team is here to help with any return-related questions.',
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        _showContactOptions(context);
-                      },
-                      child: const Text('Contact Support'),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
