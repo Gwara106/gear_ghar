@@ -222,35 +222,32 @@ class HelpCenterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildContactOption(
-              context,
+              context: context,
               icon: Icons.chat_outlined,
               title: 'Live Chat',
               subtitle: 'Chat with our support team',
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement live chat
                 _showComingSoon(context);
               },
             ),
             _buildContactOption(
-              context,
+              context: context,
               icon: Icons.email_outlined,
               title: 'Email Us',
-              subtitle: 'support@gearghar.com',
+              subtitle: 'Get a response within 24 hours',
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement email
                 _showComingSoon(context);
               },
             ),
             _buildContactOption(
-              context,
+              context: context,
               icon: Icons.phone_outlined,
               title: 'Call Us',
-              subtitle: '+1 (800) 123-4567',
+              subtitle: 'Available 9AM-6PM, Mon-Fri',
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement phone call
                 _showComingSoon(context);
               },
             ),

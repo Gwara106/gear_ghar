@@ -28,26 +28,22 @@ class ProfileScreen extends StatelessWidget {
               color: Colors.white,
               child: Column(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+                    backgroundImage: const AssetImage(
+                      'assets/images/profile_placeholder.png',
+                    ),
                     backgroundColor: Colors.grey[200],
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     'John Doe',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     'johndoe@example.com',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
@@ -59,7 +55,10 @@ class ProfileScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 10,
+                      ),
                     ),
                     child: const Text('Edit Profile'),
                   ),
@@ -67,7 +66,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            
+
             // Menu Items
             _buildMenuCard(
               context,
@@ -87,7 +86,9 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AddressesScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const AddressesScreen(),
+                  ),
                 );
               },
             ),
@@ -98,7 +99,9 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PaymentMethodsScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const PaymentMethodsScreen(),
+                  ),
                 );
               },
             ),
@@ -109,7 +112,9 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
                 );
               },
             ),
@@ -120,7 +125,9 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const HelpCenterScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const HelpCenterScreen(),
+                  ),
                 );
               },
             ),
@@ -151,10 +158,7 @@ class ProfileScreen extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: isLogout ? Colors.red : Colors.black,
-        ),
+        leading: Icon(icon, color: isLogout ? Colors.red : Colors.black),
         title: Text(
           title,
           style: TextStyle(
@@ -192,10 +196,7 @@ class ProfileScreen extends StatelessWidget {
                   (Route<dynamic> route) => false,
                 );
               },
-              child: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Logout', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
