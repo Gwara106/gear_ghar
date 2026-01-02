@@ -160,7 +160,9 @@ class AuthProvider extends ChangeNotifier {
       final socialUser = await _socialAuthService.signInWithGoogle();
       
       if (socialUser == null) {
-        _setError('Google sign-in was cancelled or failed');
+        // Run diagnostic to help identify the issue
+        await _socialAuthService.checkGoogleSignInConfiguration();
+        _setError('Google sign-in was cancelled or failed. Check console for details.');
         return false;
       }
 
