@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import 'second_splash_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -15,14 +12,19 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _navigateToSecondSplash();
+  }
 
-    // Wait 3 seconds then navigate
-    Timer(const Duration(seconds: 3), () {
+  void _navigateToSecondSplash() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const SecondSplashScreen()),
+        MaterialPageRoute(
+          builder: (context) => const SecondSplashScreen(),
+        ),
       );
-    });
+    }
   }
 
   @override
@@ -30,7 +32,9 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFD0D0D0),
       body: SafeArea(
-        child: Center(child: Image.asset('assets/images/logo.png', width: 300)),
+        child: Center(
+          child: Image.asset('assets/images/logo.png', width: 300),
+        ),
       ),
     );
   }
