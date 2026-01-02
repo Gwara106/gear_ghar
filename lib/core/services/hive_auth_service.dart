@@ -28,9 +28,7 @@ class HiveAuthService {
       }
 
       _userBox = await Hive.openBox<User>(AppConstants.userBoxName);
-      _currentUserBox = await Hive.openBox<String>(
-        AppConstants.currentUserBoxName,
-      );
+      _currentUserBox = await Hive.openBox<String>();
       print('HiveAuthService: Boxes opened successfully');
       print('HiveAuthService: Current users in box: ${_userBox.length}');
       _isInitialized = true;
