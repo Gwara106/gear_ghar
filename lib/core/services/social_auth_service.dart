@@ -9,10 +9,9 @@ class SocialAuthService {
   SocialAuthService._internal();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: kIsWeb
-        ? 'your-web-client-id.apps.googleusercontent.com'
-        : null, // For mobile, client ID is configured in google-services.json
-  );
+  clientId: '295843782166-3d1a8j.apps.googleusercontent.com', // Demo web client ID for testing
+  serverClientId: '295843782166-3d1a8j.apps.googleusercontent.com',
+);
 
   // Google Sign-In
   Future<User?> signInWithGoogle() async {
