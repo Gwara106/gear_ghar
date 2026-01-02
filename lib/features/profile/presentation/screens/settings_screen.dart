@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gear_ghar/screens/notifications_settings_screen.dart';
+import 'notifications_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -10,9 +10,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _darkMode = false;
-  bool _notificationsEnabled = true;
-  bool _emailNotifications = true;
-  bool _pushNotifications = true;
 
   @override
   Widget build(BuildContext context) {
@@ -131,10 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Center(
             child: Text(
               'Version 1.0.0',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
             ),
           ),
           const SizedBox(height: 16),
@@ -175,7 +169,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: ListTile(
         leading: Icon(icon, color: Theme.of(context).primaryColor),
         title: Text(title),
-        trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing:
+            trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
@@ -202,10 +197,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             const Text(
               'Contact Support',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             TextFormField(

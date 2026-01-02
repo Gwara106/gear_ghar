@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gear_ghar/screens/login_screen.dart';
-import 'package:gear_ghar/screens/orders_screen.dart';
-import 'package:gear_ghar/screens/addresses_screen.dart';
-import 'package:gear_ghar/screens/payment_methods_screen.dart';
-import 'package:gear_ghar/screens/settings_screen.dart';
-import 'package:gear_ghar/screens/help_center_screen.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
+import '../../../shop/presentation/screens/orders_screen.dart';
+import 'addresses_screen.dart';
+import 'payment_methods_screen.dart';
+import 'settings_screen.dart';
+import 'help_center_screen.dart';
+import '../../../../shared/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -75,7 +77,7 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const OrdersScreen()),
+                  MaterialPageRoute(builder: (context) => OrdersScreen()),
                 );
               },
             ),
@@ -189,10 +191,12 @@ class ProfileScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                // Use AuthProvider to logout
+                Provider.of<AuthProvider>(context, listen: false).logout();
                 // Navigate to login screen and clear navigation stack
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
                   (Route<dynamic> route) => false,
                 );
               },

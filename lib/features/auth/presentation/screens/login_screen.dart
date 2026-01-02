@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:gear_ghar/common/my_button.dart';
-import 'package:gear_ghar/common/my_textformfield.dart';
-import 'package:gear_ghar/screens/signup_screen.dart';
+import 'package:provider/provider.dart';
+import '../../../../shared/widgets/my_button.dart';
+import '../widgets/my_textformfield.dart';
+import 'signup_screen.dart';
+import 'forgot_password_screen.dart';
+import '../../../../shared/providers/auth_provider.dart';
+import '../../../../shared/constants/app_constants.dart';
+import '../../../../shared/constants/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,24 +23,33 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool rememberMe = false;
   bool _isPasswordVisible = false;
-  bool _isLoading = false;
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() => _isLoading = false);
+      final success = await authProvider.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
+      if (success && mounted) {
         Navigator.pushReplacementNamed(context, '/main');
-      });
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.errorMessage ?? 'Login failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD0D0D0),
+      backgroundColor: AppColors.primary,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -44,15 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 10),
-                  Image.asset('assets/images/logo.png', width: 150),
-                  const Text(
-                    'Welcome to GearGhar',
-                    style: TextStyle(
-                      fontFamily: 'Jersey25',
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Image.asset(AppConstants.logoPath, width: 150),
+                  Text(AppStrings.welcome, style: AppTextStyles.title),
                   const SizedBox(height: 5),
                   Container(
                     width: 380,
@@ -63,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 15),
-                        _buildLabel('Email'),
+                        _buildLabel(AppStrings.email),
                         MyTextformfield(
                           labelText: 'example@gmail.com',
                           controller: _emailController,
@@ -78,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                         const SizedBox(height: 15),
-                        _buildLabel('Password'),
+                        _buildLabel(AppStrings.password),
                         MyTextformfield(
                           labelText: '*********',
                           controller: _passwordController,
@@ -99,7 +106,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                             },
                             icon: Icon(
-                              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.white,
                             ),
                           ),
@@ -109,12 +118,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           alignment: Alignment.centerRight,
                           child: Padding(
                             padding: const EdgeInsets.only(right: 23),
-                            child: Text(
-                              'Forgot Password?',
-                              style: TextStyle(
-                                fontFamily: 'Jersey25',
-                                fontSize: 20,
-                                color: Colors.black,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ForgotPasswordScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                AppStrings.forgotPassword,
+                                style: const TextStyle(
+                                  fontFamily: 'Jersey25',
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 29, 0, 133),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -131,8 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               activeColor: Colors.white,
                               checkColor: Colors.black,
                             ),
-                            const Text(
-                              'Remember Me',
+                            Text(
+                              AppStrings.rememberMe,
                               style: TextStyle(
                                 fontFamily: 'Jersey25',
                                 fontSize: 20,
@@ -143,32 +163,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(
                           width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF272727),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Login',
-                                    style: TextStyle(
-                                      fontFamily: 'Jersey25',
-                                      fontSize: 24,
-                                      color: Colors.white,
-                                    ),
+                          child: Consumer<AuthProvider>(
+                            builder: (context, authProvider, child) {
+                              return ElevatedButton(
+                                onPressed: authProvider.isLoading ? null : _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF272727),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
                                   ),
+                                ),
+                                child: authProvider.isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        AppStrings.login,
+                                        style: const TextStyle(
+                                          fontFamily: 'Jersey25',
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -207,7 +231,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 10),
                   MyButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                      final success = await authProvider.signInWithFacebook();
+                      
+                      if (success && mounted) {
+                        Navigator.pushReplacementNamed(context, '/main');
+                      } else if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(authProvider.errorMessage ?? 'Facebook login failed'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF474747),
                       shape: RoundedRectangleBorder(
@@ -230,9 +268,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   MyButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                      final success = await authProvider.signInWithGoogle();
+                      
+                      if (success && mounted) {
+                        Navigator.pushReplacementNamed(context, '/main');
+                      } else if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(authProvider.errorMessage ?? 'Google login failed'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF474747),
                       shape: RoundedRectangleBorder(
@@ -268,7 +320,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         TextSpan(
-                          text: "Sign Up",
+                          text: AppStrings.signup,
                           style: const TextStyle(
                             fontFamily: 'Jersey25',
                             fontSize: 20,

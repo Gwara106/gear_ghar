@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gear_ghar/providers/product_provider.dart';
-import 'package:gear_ghar/widgets/category_sidebar.dart';
-import 'package:gear_ghar/widgets/product_card.dart';
+import '../../../../providers/product_provider.dart';
+import '../widgets/category_sidebar.dart';
+import '../widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,6 +16,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   int _selectedCategoryIndex = 0;
   String _searchQuery = '';
+  int _currentPage = 0;
+  final int _productsPerPage = 8;
+  final ScrollController _scrollController = ScrollController();
 
   void _toggleSidebar() {
     if (_scaffoldKey.currentState!.isDrawerOpen) {
@@ -23,6 +26,30 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       _scaffoldKey.currentState!.openDrawer();
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _currentPage = 0;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _changePage(int newPage) {
+    setState(() {
+      _currentPage = newPage;
+    });
+    // Scroll to top when page changes
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -95,7 +122,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
-      body: Container(
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Container(
         color: const Color(0xFFD0D0D0),
         child: SingleChildScrollView(
           child: Column(
@@ -149,17 +178,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // Products Grid
-              filteredProducts.isEmpty
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'No products found in this category',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    )
-                  : GridView.builder(
+              if (filteredProducts.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'No products found in this category',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: [
+                    GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(8.0),
@@ -169,9 +201,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
                       ),
-                      itemCount: filteredProducts.length,
+                      itemCount: filteredProducts.length > _productsPerPage
+                          ? _productsPerPage
+                          : filteredProducts.length,
                       itemBuilder: (context, index) {
-                        final product = filteredProducts[index];
+                        final pageIndex = _currentPage * _productsPerPage + index;
+                        if (pageIndex >= filteredProducts.length) return const SizedBox.shrink();
+                        
+                        final product = filteredProducts[pageIndex];
                         final productIndex = productProvider.products.indexOf(product);
                         return ProductCard(
                           name: product['name'],
@@ -189,7 +226,39 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     ),
+                    if (filteredProducts.length > _productsPerPage)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back_ios, size: 20),
+                              onPressed: _currentPage > 0
+                                  ? () => _changePage(_currentPage - 1)
+                                  : null,
+                            ),
+                            Text(
+                              'Page ${_currentPage + 1}/${(filteredProducts.length / _productsPerPage).ceil()}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.arrow_forward_ios, size: 20),
+                              onPressed: _currentPage <
+                                      (filteredProducts.length / _productsPerPage).ceil() - 1
+                                  ? () => _changePage(_currentPage + 1)
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
             ],
+          ),
           ),
         ),
       ),

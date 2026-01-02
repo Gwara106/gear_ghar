@@ -10,6 +10,7 @@ class MyTextformfield extends StatelessWidget {
     this.labelStyle,
     this.obscureText = false,
     this.suffixIcon,
+    this.enabled = true,
     required this.validator,
   });
 
@@ -20,6 +21,7 @@ class MyTextformfield extends StatelessWidget {
   final TextStyle? labelStyle;
   final bool obscureText;
   final Widget? suffixIcon;
+  final bool enabled;
   final String? Function(String?) validator;
 
   @override
@@ -29,6 +31,7 @@ class MyTextformfield extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
+        enabled: enabled,
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFF535353),

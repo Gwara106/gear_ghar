@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gear_ghar/providers/product_provider.dart';
-import 'package:gear_ghar/widgets/product_card.dart';
+import '../../../../providers/product_provider.dart';
+import '../../../home/presentation/widgets/product_card.dart';
 import 'package:collection/collection.dart';
 
 class FavoriteScreen extends StatelessWidget {

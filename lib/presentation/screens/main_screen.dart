@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gear_ghar/common/bottom_nav_bar.dart';
-import 'package:gear_ghar/screens/favorite_screen.dart';
-import 'package:gear_ghar/screens/home_screen.dart';
+import '../../shared/widgets/bottom_nav_bar.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/shop/presentation/screens/favorite_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const FavoriteScreen(),
-    const Scaffold(body: Center(child: Text('Profile Screen'))), // Placeholder for Profile
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
