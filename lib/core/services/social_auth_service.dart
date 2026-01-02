@@ -9,7 +9,7 @@ class SocialAuthService {
   SocialAuthService._internal();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-  clientId: '295843782166-3d1a8j.apps.googleusercontent.com', // Demo web client ID for testing
+  clientId: '295843782166-3d1a8j.apps.googleusercontent.com',
   serverClientId: '295843782166-3d1a8j.apps.googleusercontent.com',
 );
 
