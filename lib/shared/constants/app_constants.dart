@@ -14,6 +14,8 @@ class AppStrings {
   static const String password = 'Password';
   static const String confirmPassword = 'Confirm Password';
   static const String name = 'Name';
+  static const String firstName = 'First Name';
+  static const String lastName = 'Last Name';
   static const String forgotPassword = 'Forgot Password?';
   static const String rememberMe = 'Remember Me';
   static const String alreadyHaveAccount = 'Already have an account? Login';

@@ -16,7 +16,8 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -44,7 +45,7 @@ class _SignupScreenState extends State<SignupScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
       final success = await authProvider.signUp(
-        name: _nameController.text.trim(),
+        name: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -86,16 +87,31 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 15),
-                        _buildLabel(AppStrings.name),
+                        _buildLabel(AppStrings.firstName),
                         MyTextformfield(
-                          labelText: 'Enter your full name',
-                          controller: _nameController,
+                          labelText: 'Enter your first name',
+                          controller: _firstNameController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your full name';
+                              return 'Please enter your first name';
                             }
                             if (value.length < 3) {
-                              return 'Name must be at least 3 characters';
+                              return 'First name must be at least 3 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                        _buildLabel(AppStrings.lastName),
+                        MyTextformfield(
+                          labelText: 'Enter your last name',
+                          controller: _lastNameController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your last name';
+                            }
+                            if (value.length < 2) {
+                              return 'Last name must be at least 2 characters';
                             }
                             return null;
                           },

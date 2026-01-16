@@ -1,7 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../models/user_model.dart';
+import '../models/api_user_model.dart';
 
 class SocialAuthService {
   static final SocialAuthService _instance = SocialAuthService._internal();
@@ -15,7 +15,7 @@ class SocialAuthService {
   );
 
   // Google Sign-In
-  Future<User?> signInWithGoogle() async {
+  Future<ApiUser?> signInWithGoogle() async {
     try {
       print('SocialAuthService: Starting Google sign-in...');
 
@@ -34,11 +34,18 @@ class SocialAuthService {
 
       print('SocialAuthService: Google sign-in successful for: ${googleUser.email}');
 
-      // Create a User object from Google account info
-      final user = User.create(
+      // Create an ApiUser object from Google account info
+      final nameParts = (googleUser.displayName ?? 'Google User').split(' ');
+      final user = ApiUser(
+        id: googleUser.id,
+        firstName: nameParts[0],
+        lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
         name: googleUser.displayName ?? 'Google User',
         email: googleUser.email,
-        password: 'google_auth_${googleUser.id}', // Generate a unique password
+        role: 'user',
+        status: 'active',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       return user;
@@ -61,7 +68,7 @@ class SocialAuthService {
   }
 
   // Facebook Sign-In
-  Future<User?> signInWithFacebook() async {
+  Future<ApiUser?> signInWithFacebook() async {
     try {
       print('SocialAuthService: Starting Facebook sign-in...');
 
@@ -76,12 +83,18 @@ class SocialAuthService {
           'SocialAuthService: Facebook sign-in successful for: ${userData['email']}',
         );
 
-        // Create a User object from Facebook account info
-        final user = User.create(
+        // Create an ApiUser object from Facebook account info
+        final nameParts = (userData['name'] ?? 'Facebook User').split(' ');
+        final user = ApiUser(
+          id: userData['id']?.toString() ?? '',
+          firstName: nameParts[0],
+          lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
           name: userData['name'] ?? 'Facebook User',
           email: userData['email'] ?? '',
-          password:
-              'facebook_auth_${userData['id']}', // Generate a unique password
+          role: 'user',
+          status: 'active',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         );
 
         return user;
