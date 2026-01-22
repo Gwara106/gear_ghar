@@ -18,6 +18,12 @@ class User extends HiveObject {
   
   @HiveField(4)
   final DateTime createdAt;
+  
+  @HiveField(5)
+  String? profilePicturePath;
+  
+  @HiveField(6)
+  List<String> additionalProfilePictures = [];
 
   User({
     required this.id,
@@ -25,6 +31,8 @@ class User extends HiveObject {
     required this.email,
     required this.password,
     required this.createdAt,
+    this.profilePicturePath,
+    this.additionalProfilePictures = const [],
   });
 
   factory User.create({

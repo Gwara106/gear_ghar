@@ -8,6 +8,7 @@ class AuthApiDataSource {
     required String name,
     required String email,
     required String password,
+    String? profilePicturePath,
   }) async {
     // Split name into first and last name for the API
     final nameParts = name.split(' ');
@@ -19,6 +20,7 @@ class AuthApiDataSource {
       lastName: lastName,
       email: email,
       password: password,
+      profilePicturePath: profilePicturePath,
     );
   }
 

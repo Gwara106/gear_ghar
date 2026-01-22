@@ -6,6 +6,8 @@ import 'login_screen.dart';
 import '../../../../shared/providers/auth_provider.dart';
 import '../../../../shared/constants/app_constants.dart';
 import '../../../../shared/constants/app_theme.dart';
+import '../../../../core/widgets/profile_picture_widget.dart';
+import '../../../../core/widgets/permission_request_dialog.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -25,6 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _agreeToTerms = false;
+  String? _profilePicturePath;
 
   void _signup() async {
     if (_formKey.currentState!.validate()) {
@@ -48,6 +51,7 @@ class _SignupScreenState extends State<SignupScreen> {
         name: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        profilePicturePath: _profilePicturePath,
       );
 
       if (success && mounted) {
@@ -58,6 +62,20 @@ class _SignupScreenState extends State<SignupScreen> {
         );
       }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+  }
+
+  Future<void> _requestPermissions() async {
+    await PermissionChecker.checkAndRequestPermissions(
+      context,
+      requestCamera: true,
+      requestStorage: true,
+    );
   }
 
   @override
@@ -77,7 +95,17 @@ class _SignupScreenState extends State<SignupScreen> {
                     AppStrings.createAccount,
                     style: AppTextStyles.title,
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
+                  ProfilePicturePicker(
+                    currentProfilePicture: _profilePicturePath,
+                    onPictureChanged: (path) {
+                      setState(() {
+                        _profilePicturePath = path;
+                      });
+                    },
+                    userId: DateTime.now().millisecondsSinceEpoch.toString(),
+                  ),
+                  const SizedBox(height: 10),
                   Container(
                     width: 380,
                     decoration: BoxDecoration(

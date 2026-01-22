@@ -17,14 +17,22 @@ class AuthProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<void> initializeAuth() async {
-    _currentUser = await _authRepository.getCurrentUser();
-    notifyListeners();
+    try {
+      _currentUser = await _authRepository.getCurrentUser();
+      notifyListeners();
+    } catch (e) {
+      print('AuthProvider: Error during initialization: $e');
+      // Don't set error message during initialization as it's normal when no user is logged in
+      _currentUser = null;
+      notifyListeners();
+    }
   }
 
   Future<bool> signUp({
     required String name,
     required String email,
     required String password,
+    String? profilePicturePath,
   }) async {
     _setLoading(true);
     _clearError();
@@ -34,6 +42,7 @@ class AuthProvider extends ChangeNotifier {
         name: name,
         email: email,
         password: password,
+        profilePicturePath: profilePicturePath,
       );
 
       if (success) {
@@ -236,6 +245,41 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       print('AuthProvider: Facebook sign-in error: $e');
       _setError('Facebook sign-in failed: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void setCurrentUser(ApiUser user) {
+    _currentUser = user;
+    notifyListeners();
+  }
+
+  Future<bool> updateUser(ApiUser user) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      print('AuthProvider: Updating user profile: ${user.email}');
+      
+      // Update the user in the repository
+      final success = await _authRepository.updateUser(user);
+      
+      if (success) {
+        // Update the current user in the provider
+        _currentUser = user;
+        print('AuthProvider: User updated successfully');
+        notifyListeners();
+        return true;
+      } else {
+        print('AuthProvider: Failed to update user');
+        _setError('Failed to update profile');
+        return false;
+      }
+    } catch (e) {
+      print('AuthProvider: Error updating user: $e');
+      _setError('Profile update failed: ${e.toString()}');
       return false;
     } finally {
       _setLoading(false);

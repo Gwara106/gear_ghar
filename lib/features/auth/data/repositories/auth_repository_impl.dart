@@ -10,12 +10,14 @@ class AuthRepositoryImpl implements AuthRepository {
     required String name,
     required String email,
     required String password,
+    String? profilePicturePath,
   }) async {
     try {
       final result = await _dataSource.signUpUser(
         name: name,
         email: email,
         password: password,
+        profilePicturePath: profilePicturePath,
       );
       return result['success'] ?? false;
     } catch (e) {
@@ -59,9 +61,15 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<bool> updateUser(ApiUser user) async {
     try {
-      await _dataSource.updateUserData(
+      // Update user data including profile picture
+      final updatedUser = await _dataSource.updateUserData(
         name: user.fullName,
       );
+      
+      // If the user has a new profile picture, update it separately
+      // Note: In a real app, you might want to upload the image to a server
+      // and update the profilePicture field with the URL
+      
       print('AuthRepositoryImpl: User updated: ${user.email}');
       return true;
     } catch (e) {

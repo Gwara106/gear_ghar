@@ -43,6 +43,10 @@ dependencies:
   flutter_facebook_auth: ^7.1.5
   http: ^1.2.1
   json_annotation: ^4.9.0
+  permission_handler: ^11.3.1
+  image_picker: ^1.0.4
+  geolocator: ^10.1.0
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_test:
