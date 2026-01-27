@@ -6,6 +6,8 @@ import 'login_screen.dart';
 import '../../../../shared/providers/auth_provider.dart';
 import '../../../../shared/constants/app_constants.dart';
 import '../../../../shared/constants/app_theme.dart';
+import '../../../../core/widgets/profile_picture_widget.dart';
+import '../../../../core/widgets/permission_request_dialog.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -16,7 +18,8 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -24,6 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _agreeToTerms = false;
+  String? _profilePicturePath;
 
   void _signup() async {
     if (_formKey.currentState!.validate()) {
@@ -44,9 +48,10 @@ class _SignupScreenState extends State<SignupScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
       final success = await authProvider.signUp(
-        name: _nameController.text.trim(),
+        name: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        profilePicturePath: _profilePicturePath,
       );
 
       if (success && mounted) {
@@ -57,6 +62,20 @@ class _SignupScreenState extends State<SignupScreen> {
         );
       }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+  }
+
+  Future<void> _requestPermissions() async {
+    await PermissionChecker.checkAndRequestPermissions(
+      context,
+      requestCamera: true,
+      requestStorage: true,
+    );
   }
 
   @override
@@ -76,7 +95,17 @@ class _SignupScreenState extends State<SignupScreen> {
                     AppStrings.createAccount,
                     style: AppTextStyles.title,
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
+                  ProfilePicturePicker(
+                    currentProfilePicture: _profilePicturePath,
+                    onPictureChanged: (path) {
+                      setState(() {
+                        _profilePicturePath = path;
+                      });
+                    },
+                    userId: DateTime.now().millisecondsSinceEpoch.toString(),
+                  ),
+                  const SizedBox(height: 10),
                   Container(
                     width: 380,
                     decoration: BoxDecoration(
@@ -86,16 +115,31 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 15),
-                        _buildLabel(AppStrings.name),
+                        _buildLabel(AppStrings.firstName),
                         MyTextformfield(
-                          labelText: 'Enter your full name',
-                          controller: _nameController,
+                          labelText: 'Enter your first name',
+                          controller: _firstNameController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your full name';
+                              return 'Please enter your first name';
                             }
                             if (value.length < 3) {
-                              return 'Name must be at least 3 characters';
+                              return 'First name must be at least 3 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                        _buildLabel(AppStrings.lastName),
+                        MyTextformfield(
+                          labelText: 'Enter your last name',
+                          controller: _lastNameController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your last name';
+                            }
+                            if (value.length < 2) {
+                              return 'Last name must be at least 2 characters';
                             }
                             return null;
                           },

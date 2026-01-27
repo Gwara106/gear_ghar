@@ -1,21 +1,29 @@
-import '../../../../../core/models/user_model.dart';
+import '../../../../../core/models/api_user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/auth_datasource.dart';
+import '../datasources/auth_api_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthDataSource _dataSource = AuthDataSource();
+  final AuthApiDataSource _dataSource = AuthApiDataSource();
 
   @override
   Future<bool> signUp({
     required String name,
     required String email,
     required String password,
+    String? profilePicturePath,
   }) async {
-    return await _dataSource.signUpUser(
-      name: name,
-      email: email,
-      password: password,
-    );
+    try {
+      final result = await _dataSource.signUpUser(
+        name: name,
+        email: email,
+        password: password,
+        profilePicturePath: profilePicturePath,
+      );
+      return result['success'] ?? false;
+    } catch (e) {
+      print('AuthRepositoryImpl: Error during sign up: $e');
+      return false;
+    }
   }
 
   @override
@@ -23,10 +31,16 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
-    return await _dataSource.loginUser(
-      email: email,
-      password: password,
-    );
+    try {
+      final result = await _dataSource.loginUser(
+        email: email,
+        password: password,
+      );
+      return result['success'] ?? false;
+    } catch (e) {
+      print('AuthRepositoryImpl: Error during login: $e');
+      return false;
+    }
   }
 
   @override
@@ -35,8 +49,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  User? getCurrentUser() {
-    return _dataSource.getCurrentUserData();
+  Future<ApiUser> getCurrentUser() async {
+    return await _dataSource.getCurrentUserData();
   }
 
   @override
@@ -45,10 +59,17 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> updateUser(User user) async {
+  Future<bool> updateUser(ApiUser user) async {
     try {
-      // For simplicity, we'll just return true since Hive automatically saves changes
-      // In a real implementation, you might want to explicitly update the user in the box
+      // Update user data including profile picture
+      final updatedUser = await _dataSource.updateUserData(
+        name: user.fullName,
+      );
+      
+      // If the user has a new profile picture, update it separately
+      // Note: In a real app, you might want to upload the image to a server
+      // and update the profilePicture field with the URL
+      
       print('AuthRepositoryImpl: User updated: ${user.email}');
       return true;
     } catch (e) {

@@ -1,18 +1,42 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../shop/presentation/screens/orders_screen.dart';
 import 'addresses_screen.dart';
 import 'payment_methods_screen.dart';
 import 'settings_screen.dart';
 import 'help_center_screen.dart';
+import 'edit_profile_screen.dart';
 import '../../../../shared/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  ImageProvider _buildProfileImage(String? profilePicture) {
+    if (profilePicture != null && profilePicture.isNotEmpty) {
+      final file = File(profilePicture);
+      print('ProfileScreen: Checking if file exists: ${file.path}');
+      
+      if (file.existsSync()) {
+        print('ProfileScreen: File exists, using FileImage');
+        return FileImage(file);
+      } else {
+        print('ProfileScreen: File does not exist, using placeholder');
+      }
+    }
+    
+    print('ProfileScreen: Using placeholder image');
+    return const AssetImage('assets/images/profile_placeholder.png');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    
+    // Debug logging
+    print('ProfileScreen: User profile picture: ${authProvider.currentUser?.profilePicture}');
+    
     return Scaffold(
       backgroundColor: const Color(0xFFD0D0D0),
       appBar: AppBar(
@@ -32,25 +56,28 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: const AssetImage(
-                      'assets/images/profile_placeholder.png',
-                    ),
+                    backgroundImage: _buildProfileImage(authProvider.currentUser?.profilePicture),
                     backgroundColor: Colors.grey[200],
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    'John Doe',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  Text(
+                    authProvider.currentUser?.fullName ?? 'Guest User',
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'johndoe@example.com',
+                    authProvider.currentUser?.email ?? 'No email',
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigate to edit profile screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditProfileScreen(),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,

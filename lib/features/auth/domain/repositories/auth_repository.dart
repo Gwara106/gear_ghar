@@ -1,10 +1,11 @@
-import '../../../../core/models/user_model.dart';
+import '../../../../core/models/api_user_model.dart';
 
 abstract class AuthRepository {
   Future<bool> signUp({
     required String name,
     required String email,
     required String password,
+    String? profilePicturePath,
   });
 
   Future<bool> login({
@@ -14,9 +15,9 @@ abstract class AuthRepository {
 
   Future<void> logout();
 
-  User? getCurrentUser();
+  Future<ApiUser> getCurrentUser();
 
   bool isLoggedIn();
 
-  Future<bool> updateUser(User user);
+  Future<bool> updateUser(ApiUser user);
 }
