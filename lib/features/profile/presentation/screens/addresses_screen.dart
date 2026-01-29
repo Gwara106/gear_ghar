@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
 
 class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key});
@@ -65,7 +64,9 @@ class AddressesScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isDefault ? Theme.of(context).primaryColor : Colors.grey.shade300,
+          color: isDefault
+              ? Theme.of(context).primaryColor
+              : Colors.grey.shade300,
           width: isDefault ? 2 : 1,
         ),
       ),
@@ -91,7 +92,9 @@ class AddressesScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -108,18 +111,12 @@ class AddressesScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               address,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 8),
             Text(
               'Phone: $phone',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 16),
             Row(
@@ -187,10 +184,7 @@ class AddressesScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
         );

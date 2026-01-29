@@ -15,14 +15,23 @@ class ProfileScreen extends StatelessWidget {
 
   ImageProvider _buildProfileImage(String? profilePicture) {
     if (profilePicture != null && profilePicture.isNotEmpty) {
-      final file = File(profilePicture);
-      debugPrint('ProfileScreen: Checking if file exists: ${file.path}');
+      debugPrint('ProfileScreen: User profile picture: $profilePicture');
       
-      if (file.existsSync()) {
-        debugPrint('ProfileScreen: File exists, using FileImage');
-        return FileImage(file);
+      // Check if it's a server URL
+      if (profilePicture.startsWith('http')) {
+        debugPrint('ProfileScreen: Using NetworkImage for server URL');
+        return NetworkImage(profilePicture);
       } else {
-        debugPrint('ProfileScreen: File does not exist, using placeholder');
+        // Handle local file
+        final file = File(profilePicture);
+        debugPrint('ProfileScreen: Checking if file exists: ${file.path}');
+        
+        if (file.existsSync()) {
+          debugPrint('ProfileScreen: File exists, using FileImage');
+          return FileImage(file);
+        } else {
+          debugPrint('ProfileScreen: File does not exist, using placeholder');
+        }
       }
     }
     

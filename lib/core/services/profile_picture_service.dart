@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'permission_service.dart';
+import 'upload_service.dart';
 
 class ProfilePictureService {
   static final ProfilePictureService _instance =
@@ -82,6 +83,28 @@ class ProfilePictureService {
 
   Future<String> saveProfilePicture(File imageFile, String userId) async {
     try {
+      debugPrint('ProfilePictureService: Uploading to server...');
+      
+      // Upload to server
+      final serverUrl = await UploadService.uploadProfilePicture(imageFile);
+      
+      if (serverUrl != null) {
+        debugPrint('ProfilePictureService: Upload successful: $serverUrl');
+        return serverUrl;
+      } else {
+        // Fallback to local storage if server upload fails
+        debugPrint('ProfilePictureService: Server upload failed, using local storage');
+        return await _saveLocally(imageFile, userId);
+      }
+    } catch (e) {
+      debugPrint('Error saving profile picture: $e');
+      // Fallback to local storage
+      return await _saveLocally(imageFile, userId);
+    }
+  }
+
+  Future<String> _saveLocally(File imageFile, String userId) async {
+    try {
       final appDir = await getApplicationDocumentsDirectory();
       final profileDir = Directory(path.join(appDir.path, 'profile_pictures'));
 
@@ -96,7 +119,7 @@ class ProfilePictureService {
 
       return savedImage.path;
     } catch (e) {
-      debugPrint('Error saving profile picture: $e');
+      debugPrint('Error saving profile picture locally: $e');
       rethrow;
     }
   }
@@ -160,6 +183,13 @@ class ProfilePictureService {
 
   Future<File?> getProfilePictureFile(String? imagePath) async {
     if (imagePath == null || imagePath.isEmpty) {
+      return null;
+    }
+
+    // Check if it's a server URL
+    if (imagePath.startsWith('http')) {
+      // For server URLs, we'll handle them differently in the UI
+      // The image will be loaded directly from the URL
       return null;
     }
 
