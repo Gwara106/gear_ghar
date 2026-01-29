@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -209,13 +210,13 @@ class UserService {
             if (!allValidPaths.contains(filePath)) {
               // This file is orphaned, delete it
               await file.delete();
-              print('Deleted orphaned profile picture: $filePath');
+              debugPrint('Deleted orphaned profile picture: $filePath');
             }
           }
         }
       }
     } catch (e) {
-      print('Error cleaning up orphaned profile pictures: $e');
+      debugPrint('Error cleaning up orphaned profile pictures: $e');
     }
   }
 

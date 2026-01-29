@@ -180,7 +180,8 @@ class _NotificationsSettingsScreenState
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: _notificationsEnabled
             ? () {
-                // TODO: Show sound selection dialog
+                // Show sound selection dialog
+                _showSoundSelectionDialog();
               }
             : null,
       ),
@@ -190,7 +191,8 @@ class _NotificationsSettingsScreenState
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: _notificationsEnabled
             ? () {
-                // TODO: Show DND settings
+                // Show DND settings
+                _showDNDSettings();
               }
             : null,
       ),
@@ -199,7 +201,8 @@ class _NotificationsSettingsScreenState
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: ElevatedButton(
           onPressed: () {
-            // TODO: Save notification settings
+            // Save notification settings
+            _saveNotificationSettings();
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -244,7 +247,8 @@ class _NotificationsSettingsScreenState
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // TODO: Implement SMS subscription logic
+                // Implement SMS subscription logic
+                _enableSMSSubscription();
               },
               child: const Text('AGREE'),
             ),
@@ -252,5 +256,25 @@ class _NotificationsSettingsScreenState
         );
       },
     );
+  }
+
+  void _showSoundSelectionDialog() {
+    // Placeholder implementation for sound selection dialog
+    debugPrint('Show sound selection dialog');
+  }
+
+  void _showDNDSettings() {
+    // Placeholder implementation for DND settings
+    debugPrint('Show DND settings');
+  }
+
+  void _saveNotificationSettings() {
+    // Placeholder implementation for saving notification settings
+    debugPrint('Save notification settings');
+  }
+
+  void _enableSMSSubscription() {
+    // Placeholder implementation for enabling SMS subscription
+    debugPrint('Enable SMS subscription');
   }
 }

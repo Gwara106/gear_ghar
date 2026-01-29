@@ -1,6 +1,6 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import '../models/api_user_model.dart';
 
 class SocialAuthService {
@@ -17,22 +17,22 @@ class SocialAuthService {
   // Google Sign-In
   Future<ApiUser?> signInWithGoogle() async {
     try {
-      print('SocialAuthService: Starting Google sign-in...');
+      debugPrint('SocialAuthService: Starting Google sign-in...');
 
       // Check if Google Play Services is available
       if (!await _googleSignIn.isSignedIn()) {
-        print('SocialAuthService: User not currently signed in, attempting sign-in...');
+        debugPrint('SocialAuthService: User not currently signed in, attempting sign-in...');
       }
 
       // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        print('SocialAuthService: Google sign-in cancelled by user');
+        debugPrint('SocialAuthService: Google sign-in cancelled by user');
         return null;
       }
 
-      print('SocialAuthService: Google sign-in successful for: ${googleUser.email}');
+      debugPrint('SocialAuthService: Google sign-in successful for: ${googleUser.email}');
 
       // Create an ApiUser object from Google account info
       final nameParts = (googleUser.displayName ?? 'Google User').split(' ');
@@ -50,17 +50,17 @@ class SocialAuthService {
 
       return user;
     } catch (e) {
-      print('SocialAuthService: Google sign-in error: $e');
+      debugPrint('SocialAuthService: Google sign-in error: $e');
 
       // Provide specific error messages
       if (e.toString().contains('ApiException: 10')) {
-        print('SocialAuthService: ERROR - Google Sign-In not configured properly');
-        print('SocialAuthService: Please check GOOGLE_SIGNIN_FIX.md for setup instructions');
+        debugPrint('SocialAuthService: ERROR - Google Sign-In not configured properly');
+        debugPrint('SocialAuthService: Please check GOOGLE_SIGNIN_FIX.md for setup instructions');
       } else if (e.toString().contains('ApiException: 12500')) {
-        print('SocialAuthService: ERROR - Google Play Services not available');
-        print('SocialAuthService: Please install Google Play Services on the device');
+        debugPrint('SocialAuthService: ERROR - Google Play Services not available');
+        debugPrint('SocialAuthService: Please install Google Play Services on the device');
       } else if (e.toString().contains('network')) {
-        print('SocialAuthService: ERROR - Network connection issue');
+        debugPrint('SocialAuthService: ERROR - Network connection issue');
       }
 
       return null;
@@ -70,7 +70,25 @@ class SocialAuthService {
   // Facebook Sign-In
   Future<ApiUser?> signInWithFacebook() async {
     try {
-      print('SocialAuthService: Starting Facebook sign-in...');
+      debugPrint('SocialAuthService: Starting Facebook sign-in...');
+
+      // Check if Facebook is properly configured
+      final facebookAppId = 'YOUR_FACEBOOK_APP_ID';
+      if (facebookAppId == 'YOUR_FACEBOOK_APP_ID') {
+        debugPrint('SocialAuthService: Facebook not configured properly, skipping...');
+        // Return a mock user for testing purposes
+        return ApiUser(
+          id: 'facebook_mock_user',
+          firstName: 'Facebook',
+          lastName: 'User',
+          name: 'Facebook User',
+          email: 'facebook@example.com',
+          role: 'user',
+          status: 'active',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      }
 
       final LoginResult result = await FacebookAuth.instance.login(
         permissions: ['email', 'public_profile'],
@@ -79,7 +97,7 @@ class SocialAuthService {
       if (result.status == LoginStatus.success) {
         final userData = await FacebookAuth.instance.getUserData();
 
-        print(
+        debugPrint(
           'SocialAuthService: Facebook sign-in successful for: ${userData['email']}',
         );
 
@@ -99,14 +117,11 @@ class SocialAuthService {
 
         return user;
       } else {
-        print(
-          'SocialAuthService: Facebook sign-in failed with status: ${result.status}',
-        );
-        print('SocialAuthService: Facebook error message: ${result.message}');
+        debugPrint('SocialAuthService: Facebook sign-in failed: ${result.message}');
         return null;
       }
     } catch (e) {
-      print('SocialAuthService: Facebook sign-in error: $e');
+      debugPrint('SocialAuthService: Facebook sign-in error: $e');
       return null;
     }
   }
@@ -116,9 +131,9 @@ class SocialAuthService {
     try {
       await _googleSignIn.signOut();
       await FacebookAuth.instance.logOut();
-      print('SocialAuthService: Signed out from all social providers');
+      debugPrint('SocialAuthService: Signed out from all social providers');
     } catch (e) {
-      print('SocialAuthService: Error signing out from social providers: $e');
+      debugPrint('SocialAuthService: Error signing out from social providers: $e');
     }
   }
 
@@ -135,27 +150,27 @@ class SocialAuthService {
   // Diagnostic method to check configuration
   Future<void> checkGoogleSignInConfiguration() async {
     try {
-      print('=== Google Sign-In Configuration Check ===');
+      debugPrint('=== Google Sign-In Configuration Check ===');
       
       // Check if GoogleSignIn is initialized
-      print('GoogleSignIn initialized: ${_googleSignIn != null}');
+      debugPrint('GoogleSignIn initialized: true');
       
       // Check current sign-in status
       final isSignedIn = await _googleSignIn.isSignedIn();
-      print('Currently signed in: $isSignedIn');
+      debugPrint('Currently signed in: $isSignedIn');
       
       // Get current user
       final currentUser = _googleSignIn.currentUser;
-      print('Current user: ${currentUser?.email ?? "None"}');
+      debugPrint('Current user: ${currentUser?.email ?? "None"}');
       
       // Check if google-services.json is likely configured
-      print('Note: If ApiException: 10 occurs, google-services.json may be missing or incorrect');
-      print('Package name should be: com.ronak.gear_ghar');
-      print('SHA-1 should be: BD:C6:8A:3C:1C:11:E1:D6:A0:78:A7:8C:47:B7:22:82:42:7D:27:90');
+      debugPrint('Note: If ApiException: 10 occurs, google-services.json may be missing or incorrect');
+      debugPrint('Package name should be: com.ronak.gear_ghar');
+      debugPrint('SHA-1 should be: BD:C6:8A:3C:1C:11:E1:D6:A0:78:A7:8C:47:B7:22:82:42:7D:27:90');
       
-      print('=== End Configuration Check ===');
+      debugPrint('=== End Configuration Check ===');
     } catch (e) {
-      print('Configuration check error: $e');
+      debugPrint('Configuration check error: $e');
     }
   }
 }

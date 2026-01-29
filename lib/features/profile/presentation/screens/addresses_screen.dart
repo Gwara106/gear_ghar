@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key});
@@ -16,6 +17,7 @@ class AddressesScreen extends StatelessWidget {
         children: [
           _buildAddressCard(
             context,
+            index: 0,
             name: 'Home',
             address: '123 Main Street, Apt 4B\nNew York, NY 10001',
             phone: '+1 234 567 8900',
@@ -24,6 +26,7 @@ class AddressesScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _buildAddressCard(
             context,
+            index: 1,
             name: 'Work',
             address: '456 Business Ave, Floor 5\nNew York, NY 10022',
             phone: '+1 234 567 8901',
@@ -32,7 +35,8 @@ class AddressesScreen extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              // TODO: Implement add new address
+              // Implement add new address
+              _showAddAddressDialog();
             },
             icon: const Icon(Icons.add),
             label: const Text('Add New Address'),
@@ -50,6 +54,7 @@ class AddressesScreen extends StatelessWidget {
 
   Widget _buildAddressCard(
     BuildContext context, {
+    required int index,
     required String name,
     required String address,
     required String phone,
@@ -86,7 +91,7 @@ class AddressesScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -122,7 +127,8 @@ class AddressesScreen extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    // TODO: Implement edit address
+                    // Implement edit address
+                    _editAddress(index);
                   },
                   child: const Text('Edit'),
                 ),
@@ -130,8 +136,8 @@ class AddressesScreen extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     if (!isDefault) {
-                      // TODO: Implement delete address
-                      _showDeleteConfirmation(context);
+                      // Implement delete address
+                      _showDeleteConfirmation(context, index);
                     }
                   },
                   style: TextButton.styleFrom(
@@ -143,7 +149,8 @@ class AddressesScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () {
-                      // TODO: Implement set as default
+                      // Implement set as default
+                      _setAsDefault(index);
                     },
                     child: const Text('Set as Default'),
                   ),
@@ -156,7 +163,7 @@ class AddressesScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
+  void _showDeleteConfirmation(BuildContext context, int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -171,7 +178,8 @@ class AddressesScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // TODO: Implement delete address logic
+                // Implement delete address logic
+                _deleteAddress(index);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Address deleted successfully'),
@@ -188,5 +196,25 @@ class AddressesScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _showAddAddressDialog() {
+    // Placeholder implementation for adding new address
+    debugPrint('Show add address dialog');
+  }
+
+  void _editAddress(int index) {
+    // Placeholder implementation for editing address
+    debugPrint('Edit address at index: $index');
+  }
+
+  void _setAsDefault(int index) {
+    // Placeholder implementation for setting address as default
+    debugPrint('Set address at index $index as default');
+  }
+
+  void _deleteAddress(int index) {
+    // Placeholder implementation for deleting address
+    debugPrint('Delete address at index: $index');
   }
 }

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:provider/provider.dart';
 import '../../../../shared/providers/auth_provider.dart';
 import '../../../../core/services/profile_picture_service.dart';
-import '../../../../core/services/permission_service.dart';
 import '../../../../core/models/api_user_model.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -15,7 +14,6 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final ProfilePictureService _profilePictureService = ProfilePictureService();
-  final PermissionService _permissionService = PermissionService();
   
   File? _newProfileImage;
   bool _isLoading = false;
@@ -287,7 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       setState(() => _isLoading = true);
 
-      print('EditProfileScreen: Current user profile picture: ${currentUser.profilePicture}');
+      debugPrint('EditProfileScreen: Current user profile picture: ${currentUser.profilePicture}');
 
       // Save the new profile picture
       final savedImagePath = await _profilePictureService.saveProfilePicture(
@@ -295,7 +293,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         currentUser.id,
       );
 
-      print('EditProfileScreen: Saved image path: $savedImagePath');
+      debugPrint('EditProfileScreen: Saved image path: $savedImagePath');
 
       // Update user with new profile picture path
       final updatedUser = ApiUser(
@@ -316,14 +314,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       // Update locally first to ensure UI updates immediately
       authProvider.setCurrentUser(updatedUser);
-      print('EditProfileScreen: Updated user locally with new profile picture');
+      debugPrint('EditProfileScreen: Updated user locally with new profile picture');
 
       // Try to update on server (but don't fail if it doesn't work)
       try {
         await authProvider.updateUser(updatedUser);
-        print('EditProfileScreen: Server update successful');
+        debugPrint('EditProfileScreen: Server update successful');
       } catch (e) {
-        print('EditProfileScreen: Server update failed, but local update succeeded: $e');
+        debugPrint('EditProfileScreen: Server update failed, but local update succeeded: $e');
         // Don't show error to user since local update worked
       }
 

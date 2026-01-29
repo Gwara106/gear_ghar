@@ -44,6 +44,7 @@ class AuthApiDataSource {
 
   Future<ApiUser> updateUserData({
     required String name,
+    String? profilePicturePath,
   }) async {
     // Split name into first and last name for the API
     final nameParts = name.split(' ');
@@ -53,6 +54,7 @@ class AuthApiDataSource {
     return await _authApiService.updateProfile(
       firstName: firstName,
       lastName: lastName,
+      profilePicturePath: profilePicturePath,
     );
   }
 

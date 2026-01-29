@@ -92,13 +92,21 @@ class AuthApiService {
   Future<ApiUser> updateProfile({
     required String firstName,
     required String lastName,
+    String? profilePicturePath,
   }) async {
     try {
-      final response = await _apiService.put(ApiConstants.profile, {
+      final requestData = {
         'firstName': firstName,
         'lastName': lastName,
         'name': '$firstName $lastName', // For backward compatibility
-      });
+      };
+      
+      // Add profile picture if provided
+      if (profilePicturePath != null && profilePicturePath.isNotEmpty) {
+        requestData['profilePicture'] = profilePicturePath;
+      }
+      
+      final response = await _apiService.put(ApiConstants.profile, requestData);
       
       return ApiUser.fromJson(response['data']);
     } catch (e) {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import '../../../../../core/models/api_user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_api_datasource.dart';
@@ -21,7 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return result['success'] ?? false;
     } catch (e) {
-      print('AuthRepositoryImpl: Error during sign up: $e');
+      debugPrint('AuthRepositoryImpl: Error during sign up: $e');
       return false;
     }
   }
@@ -38,7 +39,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return result['success'] ?? false;
     } catch (e) {
-      print('AuthRepositoryImpl: Error during login: $e');
+      debugPrint('AuthRepositoryImpl: Error during login: $e');
       return false;
     }
   }
@@ -62,18 +63,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> updateUser(ApiUser user) async {
     try {
       // Update user data including profile picture
-      final updatedUser = await _dataSource.updateUserData(
+      await _dataSource.updateUserData(
         name: user.fullName,
+        profilePicturePath: user.profilePicturePath,
       );
       
-      // If the user has a new profile picture, update it separately
-      // Note: In a real app, you might want to upload the image to a server
-      // and update the profilePicture field with the URL
-      
-      print('AuthRepositoryImpl: User updated: ${user.email}');
+      debugPrint('AuthRepositoryImpl: User updated: ${user.email}');
       return true;
     } catch (e) {
-      print('AuthRepositoryImpl: Error updating user: $e');
+      debugPrint('AuthRepositoryImpl: Error updating user: $e');
       return false;
     }
   }

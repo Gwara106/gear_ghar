@@ -24,8 +24,8 @@ class _AppState extends State<App> {
   }
 
   Future<void> _initializeApp() async {
-    // Hive is initialized by AuthRepositoryImpl
-    await _authProvider.initializeAuth();
+    // Initialize auth in background without blocking UI
+    Future.microtask(() => _authProvider.initializeAuth());
   }
 
   @override

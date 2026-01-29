@@ -74,7 +74,9 @@ class PermissionRequestDialog extends StatelessWidget {
     if (granted) {
       onGranted?.call();
     } else {
-      _showPermissionDeniedDialog(context);
+      if (context.mounted) {
+        _showPermissionDeniedDialog(context);
+      }
     }
   }
 
@@ -117,39 +119,45 @@ class PermissionChecker {
     if (requestCamera) {
       final hasPermission = await permissionService.checkCameraPermission();
       if (!hasPermission) {
-        final granted = await _showPermissionDialog(
-          context,
-          'Camera Permission',
-          'The app needs access to your camera to take photos for your profile picture.',
-          'camera',
-        );
-        allGranted = allGranted && granted;
+        if (context.mounted) {
+          final granted = await _showPermissionDialog(
+            context,
+            'Camera Permission',
+            'The app needs access to your camera to take photos for your profile picture.',
+            'camera',
+          );
+          allGranted = allGranted && granted;
+        }
       }
     }
 
     if (requestStorage) {
       final hasPermission = await permissionService.checkStoragePermission();
       if (!hasPermission) {
-        final granted = await _showPermissionDialog(
-          context,
-          'Storage Permission',
-          'The app needs access to your storage to select and save photos.',
-          'storage',
-        );
-        allGranted = allGranted && granted;
+        if (context.mounted) {
+          final granted = await _showPermissionDialog(
+            context,
+            'Storage Permission',
+            'The app needs access to your storage to select and save photos.',
+            'storage',
+          );
+          allGranted = allGranted && granted;
+        }
       }
     }
 
     if (requestLocation) {
       final hasPermission = await permissionService.checkLocationPermission();
       if (!hasPermission) {
-        final granted = await _showPermissionDialog(
-          context,
-          'Location Permission',
-          'The app needs access to your location to provide location-based features.',
-          'location',
-        );
-        allGranted = allGranted && granted;
+        if (context.mounted) {
+          final granted = await _showPermissionDialog(
+            context,
+            'Location Permission',
+            'The app needs access to your location to provide location-based features.',
+            'location',
+          );
+          allGranted = allGranted && granted;
+        }
       }
     }
 

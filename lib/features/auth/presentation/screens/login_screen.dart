@@ -236,14 +236,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       final success = await authProvider.signInWithFacebook();
                       
                       if (success && mounted) {
-                        Navigator.pushReplacementNamed(context, '/main');
+                          if (context.mounted) {
+                              Navigator.pushReplacementNamed(context, '/main');
+                          }
                       } else if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(authProvider.errorMessage ?? 'Facebook login failed'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
+                          if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authProvider.errorMessage ?? 'Facebook login failed'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                          }
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -275,14 +279,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       final success = await authProvider.signInWithGoogle();
                       
                       if (success && mounted) {
-                        Navigator.pushReplacementNamed(context, '/main');
+                          if (context.mounted) {
+                              Navigator.pushReplacementNamed(context, '/main');
+                          }
                       } else if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(authProvider.errorMessage ?? 'Google login failed'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
+                          if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authProvider.errorMessage ?? 'Google login failed'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                          }
                       }
                     },
                     style: ElevatedButton.styleFrom(

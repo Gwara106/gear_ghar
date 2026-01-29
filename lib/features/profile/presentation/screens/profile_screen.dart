@@ -16,17 +16,17 @@ class ProfileScreen extends StatelessWidget {
   ImageProvider _buildProfileImage(String? profilePicture) {
     if (profilePicture != null && profilePicture.isNotEmpty) {
       final file = File(profilePicture);
-      print('ProfileScreen: Checking if file exists: ${file.path}');
+      debugPrint('ProfileScreen: Checking if file exists: ${file.path}');
       
       if (file.existsSync()) {
-        print('ProfileScreen: File exists, using FileImage');
+        debugPrint('ProfileScreen: File exists, using FileImage');
         return FileImage(file);
       } else {
-        print('ProfileScreen: File does not exist, using placeholder');
+        debugPrint('ProfileScreen: File does not exist, using placeholder');
       }
     }
     
-    print('ProfileScreen: Using placeholder image');
+    debugPrint('ProfileScreen: Using placeholder image');
     return const AssetImage('assets/images/profile_placeholder.png');
   }
 
@@ -35,7 +35,7 @@ class ProfileScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
     
     // Debug logging
-    print('ProfileScreen: User profile picture: ${authProvider.currentUser?.profilePicture}');
+    debugPrint('ProfileScreen: User profile picture: ${authProvider.currentUser?.profilePicture}');
     
     return Scaffold(
       backgroundColor: const Color(0xFFD0D0D0),

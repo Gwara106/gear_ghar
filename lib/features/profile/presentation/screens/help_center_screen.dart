@@ -79,22 +79,30 @@ class HelpCenterScreen extends StatelessWidget {
   Widget _buildOrdersTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: const [
+      children: [
         _HelpSectionItem(
           title: 'Order Status',
           description: 'Check the current status of your order and view estimated delivery dates.',
+          category: 'Order Status',
+          onNavigate: _navigateToDetailedHelp,
         ),
         _HelpSectionItem(
           title: 'Track Package',
           description: 'Track your package in real-time with our tracking system.',
+          category: 'Track Package',
+          onNavigate: _navigateToDetailedHelp,
         ),
         _HelpSectionItem(
           title: 'Cancel Order',
           description: 'Request to cancel your order if it hasn\'t been shipped yet.',
+          category: 'Cancel Order',
+          onNavigate: _navigateToDetailedHelp,
         ),
         _HelpSectionItem(
           title: 'Order History',
           description: 'View your complete order history and reorder items easily.',
+          category: 'Order History',
+          onNavigate: _navigateToDetailedHelp,
         ),
       ],
     );
@@ -103,22 +111,30 @@ class HelpCenterScreen extends StatelessWidget {
   Widget _buildPaymentsTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: const [
+      children: [
         _HelpSectionItem(
           title: 'Payment Methods',
           description: 'Add, edit, or remove your payment methods.',
+          category: 'Payment Methods',
+          onNavigate: _navigateToDetailedHelp,
         ),
         _HelpSectionItem(
           title: 'Billing Information',
           description: 'Update your billing address and view billing history.',
+          category: 'Billing Information',
+          onNavigate: _navigateToDetailedHelp,
         ),
         _HelpSectionItem(
           title: 'Payment Security',
           description: 'Learn about our secure payment processing.',
+          category: 'Payment Security',
+          onNavigate: _navigateToDetailedHelp,
         ),
         _HelpSectionItem(
           title: 'Refund Status',
           description: 'Check the status of your refund request.',
+          category: 'Refund Status',
+          onNavigate: _navigateToDetailedHelp,
         ),
       ],
     );
@@ -130,17 +146,23 @@ class HelpCenterScreen extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const _HelpSectionItem(
+            _HelpSectionItem(
               title: 'Start a Return',
               description: 'Initiate a return for items you\'re not completely satisfied with.',
+              category: 'Start a Return',
+              onNavigate: _navigateToDetailedHelp,
             ),
-            const _HelpSectionItem(
+            _HelpSectionItem(
               title: 'Return Policy',
               description: 'Learn about our return policy and conditions.',
+              category: 'Return Policy',
+              onNavigate: _navigateToDetailedHelp,
             ),
-            const _HelpSectionItem(
+            _HelpSectionItem(
               title: 'Return Status',
               description: 'Track the status of your return and refund.',
+              category: 'Return Status',
+              onNavigate: _navigateToDetailedHelp,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -283,15 +305,24 @@ class HelpCenterScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _navigateToDetailedHelp(String category) {
+    // Placeholder implementation for navigating to detailed help
+    debugPrint('Navigate to detailed help for category: $category');
+  }
 }
 
 class _HelpSectionItem extends StatelessWidget {
   final String title;
   final String description;
+  final String category;
+  final Function(String)? onNavigate;
 
   const _HelpSectionItem({
     required this.title,
     required this.description,
+    required this.category,
+    this.onNavigate,
   });
 
   @override
@@ -306,7 +337,8 @@ class _HelpSectionItem extends StatelessWidget {
         subtitle: Text(description),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {
-          // TODO: Navigate to detailed help section
+          // Navigate to detailed help section
+          onNavigate?.call(category);
         },
       ),
     );
