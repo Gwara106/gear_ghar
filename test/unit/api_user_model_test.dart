@@ -73,7 +73,7 @@ void main() {
 
     test('should handle JSON serialization', () {
       final json = testUser.toJson();
-      expect(json['id'], equals('test_id'));
+      expect(json['_id'], equals('test_id'));
       expect(json['firstName'], equals('John'));
       expect(json['lastName'], equals('Doe'));
       expect(json['email'], equals('john.doe@example.com'));
