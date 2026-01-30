@@ -81,4 +81,62 @@ class UploadService {
       return null;
     }
   }
+
+  static Future<bool> deleteImageFromServer(String imageUrl) async {
+    try {
+      debugPrint('UploadService: Deleting image from server: $imageUrl');
+      
+      // Extract filename from URL
+      final uri = Uri.parse(imageUrl);
+      final pathSegments = uri.pathSegments;
+      final fileName = pathSegments.last;
+      
+      final response = await _dio.delete(
+        '/api/v1/upload/$fileName',
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('UploadService: Image deleted successfully');
+        return true;
+      } else {
+        debugPrint('UploadService: Delete failed with status: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('UploadService: Delete error: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> isImageFileValid(File imageFile) async {
+    try {
+      if (!await imageFile.exists()) {
+        debugPrint('UploadService: File does not exist');
+        return false;
+      }
+
+      final fileSize = await imageFile.length();
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      
+      if (fileSize > maxSize) {
+        debugPrint('UploadService: File too large: ${fileSize} bytes');
+        return false;
+      }
+
+      final fileName = imageFile.path.toLowerCase();
+      final validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+      final hasValidExtension = validExtensions.any((ext) => fileName.endsWith(ext));
+      
+      if (!hasValidExtension) {
+        debugPrint('UploadService: Invalid file extension');
+        return false;
+      }
+
+      debugPrint('UploadService: File validation passed');
+      return true;
+    } catch (e) {
+      debugPrint('UploadService: Validation error: $e');
+      return false;
+    }
+  }
 }
