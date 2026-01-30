@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:provider/provider.dart';
-import '../../lib/core/widgets/cached_network_image_widget.dart';
-import '../../lib/shared/providers/auth_provider.dart';
-import '../../lib/core/models/api_user_model.dart';
+import 'package:gear_ghar/core/widgets/cached_network_image_widget.dart';
+import 'package:gear_ghar/shared/providers/auth_provider.dart';
+import 'package:gear_ghar/core/models/api_user_model.dart';
 
 // Generate mocks
 @GenerateMocks([AuthProvider, ApiUser])

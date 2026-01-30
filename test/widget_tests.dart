@@ -1,6 +1,4 @@
-/// Widget test runner
-/// This file can be used to run all widget tests together
-
+import 'package:flutter_test/flutter_test.dart';
 import 'widgets/cached_network_image_widget_test.dart' as cached_network_image;
 import 'widgets/profile_screen_test.dart' as profile_screen;
 import 'widgets/login_screen_test.dart' as login_screen;

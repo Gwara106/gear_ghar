@@ -414,7 +414,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Color _getRoleColor(String role) {
+  MaterialColor _getRoleColor(String role) {
     switch (role) {
       case 'admin':
         return Colors.red;
@@ -423,7 +423,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  Color _getStatusColor(String status) {
+  MaterialColor _getStatusColor(String status) {
     switch (status) {
       case 'active':
         return Colors.green;

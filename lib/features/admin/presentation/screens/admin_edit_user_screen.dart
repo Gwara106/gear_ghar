@@ -224,7 +224,7 @@ class _AdminEditUserScreenState extends State<AdminEditUserScreen> {
               const SizedBox(height: 16),
               
               DropdownButtonFormField<String>(
-                value: _selectedRole,
+                initialValue: _selectedRole,
                 decoration: _buildInputDecoration('Role'),
                 items: const [
                   DropdownMenuItem(value: 'user', child: Text('User')),
@@ -239,7 +239,7 @@ class _AdminEditUserScreenState extends State<AdminEditUserScreen> {
               const SizedBox(height: 16),
               
               DropdownButtonFormField<String>(
-                value: _selectedStatus,
+                initialValue: _selectedStatus,
                 decoration: _buildInputDecoration('Status'),
                 items: const [
                   DropdownMenuItem(value: 'active', child: Text('Active')),

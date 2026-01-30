@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:provider/provider.dart';
-import '../../lib/features/auth/presentation/screens/login_screen.dart';
-import '../../lib/shared/providers/auth_provider.dart';
+import 'package:gear_ghar/features/auth/presentation/screens/login_screen.dart';
+import 'package:gear_ghar/shared/providers/auth_provider.dart';
 
 // Generate mocks
 @GenerateMocks([AuthProvider])

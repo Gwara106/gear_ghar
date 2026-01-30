@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/core/models/api_user_model.dart';
+import 'package:gear_ghar/core/models/api_user_model.dart';
 
 void main() {
   group('ApiUser Model Tests', () {

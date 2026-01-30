@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import '../lib/core/services/profile_picture_service.dart';
-import '../lib/core/services/upload_service.dart';
+import 'package:gear_ghar/core/services/profile_picture_service.dart';
+import 'package:gear_ghar/core/services/upload_service.dart';
 
 // Generate mocks
 @GenerateMocks([UploadService])

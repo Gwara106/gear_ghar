@@ -1,8 +1,8 @@
 /// Test configuration and utilities
-library test_config;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 /// Test utilities for the project
 class TestHelpers {

@@ -119,7 +119,7 @@ class UploadService {
       const maxSize = 5 * 1024 * 1024; // 5MB
       
       if (fileSize > maxSize) {
-        debugPrint('UploadService: File too large: ${fileSize} bytes');
+        debugPrint('UploadService: File too large: $fileSize bytes');
         return false;
       }
 
