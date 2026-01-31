@@ -63,4 +63,7 @@ class ApiUser {
   
   // Get full name
   String get fullName => name ?? '$firstName $lastName';
+  
+  // Get profile picture path
+  String? get profilePicturePath => profilePicture;
 }

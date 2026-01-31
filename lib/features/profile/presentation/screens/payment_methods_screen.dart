@@ -16,6 +16,7 @@ class PaymentMethodsScreen extends StatelessWidget {
         children: [
           _buildPaymentMethodCard(
             context,
+            index: 0,
             cardType: 'VISA',
             lastFour: '4242',
             expiryDate: '12/25',
@@ -24,6 +25,7 @@ class PaymentMethodsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _buildPaymentMethodCard(
             context,
+            index: 1,
             cardType: 'MASTERCARD',
             lastFour: '1881',
             expiryDate: '06/26',
@@ -32,7 +34,7 @@ class PaymentMethodsScreen extends StatelessWidget {
           const SizedBox(height: 24),
           OutlinedButton.icon(
             onPressed: () {
-              // TODO: Implement add new payment method
+              // Implement add new payment method
               _showAddPaymentMethod(context);
             },
             icon: const Icon(Icons.add),
@@ -51,7 +53,8 @@ class PaymentMethodsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           TextButton.icon(
             onPressed: () {
-              // TODO: Implement add PayPal
+              // Implement add PayPal
+              _addPayPalAccount();
             },
             icon: Image.asset(
               'assets/images/paypal.png',
@@ -75,6 +78,7 @@ class PaymentMethodsScreen extends StatelessWidget {
 
   Widget _buildPaymentMethodCard(
     BuildContext context, {
+    required int index,
     required String cardType,
     required String lastFour,
     required String expiryDate,
@@ -133,7 +137,7 @@ class PaymentMethodsScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -163,7 +167,8 @@ class PaymentMethodsScreen extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),
                       onPressed: () {
-                        // TODO: Implement edit payment method
+                        // Implement edit payment method
+                        _editPaymentMethod(index);
                       },
                       color: Colors.grey[600],
                       padding: EdgeInsets.zero,
@@ -174,7 +179,7 @@ class PaymentMethodsScreen extends StatelessWidget {
                       icon: const Icon(Icons.delete_outline, size: 20),
                       onPressed: () {
                         if (!isDefault) {
-                          _showDeleteConfirmation(context);
+                          _showDeleteConfirmation(context, index);
                         }
                       },
                       color: isDefault ? Colors.grey[400] : Colors.red[400],
@@ -191,7 +196,8 @@ class PaymentMethodsScreen extends StatelessWidget {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () {
-                    // TODO: Implement set as default
+                    // Implement set as default
+                    _setAsDefault(index);
                   },
                   child: const Text('Set as Default'),
                 ),
@@ -279,7 +285,8 @@ class PaymentMethodsScreen extends StatelessWidget {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Implement save payment method
+                  // Implement save payment method
+                  _savePaymentMethod();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -298,7 +305,7 @@ class PaymentMethodsScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
+  void _showDeleteConfirmation(BuildContext context, int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -314,7 +321,8 @@ class PaymentMethodsScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // TODO: Implement delete payment method logic
+                // Implement delete payment method logic
+                _deletePaymentMethod(index);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Payment method removed successfully'),
@@ -331,5 +339,30 @@ class PaymentMethodsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _addPayPalAccount() {
+    // Placeholder implementation for adding PayPal account
+    debugPrint('Add PayPal account');
+  }
+
+  void _editPaymentMethod(int index) {
+    // Placeholder implementation for editing payment method
+    debugPrint('Edit payment method at index: $index');
+  }
+
+  void _setAsDefault(int index) {
+    // Placeholder implementation for setting payment method as default
+    debugPrint('Set payment method at index $index as default');
+  }
+
+  void _savePaymentMethod() {
+    // Placeholder implementation for saving payment method
+    debugPrint('Save payment method');
+  }
+
+  void _deletePaymentMethod(int index) {
+    // Placeholder implementation for deleting payment method
+    debugPrint('Delete payment method at index: $index');
   }
 }

@@ -103,7 +103,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _authRepository.signOut();
     } catch (e) {
-      print('Error during sign out: $e');
+      debugPrint('Error during sign out: $e');
     } finally {
       _user = null;
       _isAuthenticated = false;

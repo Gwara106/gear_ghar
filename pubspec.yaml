@@ -39,9 +39,11 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.1
+  path: ^1.8.3
   google_sign_in: ^6.2.1
   flutter_facebook_auth: ^7.1.5
   http: ^1.2.1
+  dio: ^5.4.0
   json_annotation: ^4.9.0
   permission_handler: ^11.3.1
   image_picker: ^1.0.4
@@ -51,6 +53,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mockito: ^5.4.2
+  build_test: ^2.1.7
+  network_image_mock: ^2.1.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

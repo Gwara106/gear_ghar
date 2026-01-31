@@ -1,4 +1,5 @@
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user_model.dart';
 import '../../shared/constants/app_constants.dart';
@@ -17,26 +18,26 @@ class HiveAuthService {
 
   Future<void> init() async {
     try {
-      print('HiveAuthService: Initializing...');
+      debugPrint('HiveAuthService: Initializing...');
       final appDocumentDir = await getApplicationDocumentsDirectory();
       await Hive.initFlutter(appDocumentDir.path);
-      print('HiveAuthService: Hive initialized at ${appDocumentDir.path}');
+      debugPrint('HiveAuthService: Hive initialized at ${appDocumentDir.path}');
 
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(UserAdapter());
-        print('HiveAuthService: UserAdapter registered');
+        debugPrint('HiveAuthService: UserAdapter registered');
       }
 
       _userBox = await Hive.openBox<User>(AppConstants.userBoxName);
       _currentUserBox = await Hive.openBox<String>(
         AppConstants.currentUserBoxName,
       );
-      print('HiveAuthService: Boxes opened successfully');
-      print('HiveAuthService: Current users in box: ${_userBox.length}');
+      debugPrint('HiveAuthService: Boxes opened successfully');
+      debugPrint('HiveAuthService: Current users in box: ${_userBox.length}');
       _isInitialized = true;
-      print('HiveAuthService: Initialization complete');
+      debugPrint('HiveAuthService: Initialization complete');
     } catch (e) {
-      print('HiveAuthService: Initialization error: $e');
+      debugPrint('HiveAuthService: Initialization error: $e');
       rethrow;
     }
   }
@@ -47,57 +48,57 @@ class HiveAuthService {
     required String password,
   }) async {
     if (!_isInitialized) {
-      print('HiveAuthService: Not initialized, calling init()');
+      debugPrint('HiveAuthService: Not initialized, calling init()');
       await init();
     }
 
     try {
-      print('HiveAuthService: Attempting signup for email: $email');
+      debugPrint('HiveAuthService: Attempting signup for email: $email');
       final existingUsers = _userBox.values.where(
         (user) => user.email == email,
       );
       if (existingUsers.isNotEmpty) {
-        print('HiveAuthService: Email already exists: $email');
+        debugPrint('HiveAuthService: Email already exists: $email');
         return false;
       }
 
       final user = User.create(name: name, email: email, password: password);
-      print('HiveAuthService: Created new user: ${user.email}, ID: ${user.id}');
+      debugPrint('HiveAuthService: Created new user: ${user.email}, ID: ${user.id}');
 
       await _userBox.add(user);
       await _currentUserBox.put('current_user', user.id);
-      print(
+      debugPrint(
         'HiveAuthService: Signup successful and logged in user: ${user.email}',
       );
 
       return true;
     } catch (e) {
-      print('HiveAuthService: Signup error: $e');
+      debugPrint('HiveAuthService: Signup error: $e');
       return false;
     }
   }
 
   Future<bool> login({required String email, required String password}) async {
     if (!_isInitialized) {
-      print('HiveAuthService: Not initialized, calling init()');
+      debugPrint('HiveAuthService: Not initialized, calling init()');
       await init();
     }
 
     try {
-      print('HiveAuthService: Looking for user with email: $email');
+      debugPrint('HiveAuthService: Looking for user with email: $email');
       final user = _userBox.values.firstWhere(
         (user) => user.email == email && user.password == password,
         orElse: () {
-          print('HiveAuthService: User not found or password mismatch');
+          debugPrint('HiveAuthService: User not found or password mismatch');
           throw Exception('User not found');
         },
       );
 
       await _currentUserBox.put('current_user', user.id);
-      print('HiveAuthService: Login successful for user: ${user.email}');
+      debugPrint('HiveAuthService: Login successful for user: ${user.email}');
       return true;
     } catch (e) {
-      print('HiveAuthService: Login error: $e');
+      debugPrint('HiveAuthService: Login error: $e');
       return false;
     }
   }

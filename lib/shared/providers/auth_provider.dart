@@ -18,10 +18,17 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> initializeAuth() async {
     try {
-      _currentUser = await _authRepository.getCurrentUser();
+      // Use a timeout to prevent hanging
+      _currentUser = await _authRepository.getCurrentUser().timeout(
+        const Duration(seconds: 3),
+        onTimeout: () {
+          debugPrint('AuthProvider: Initialization timeout - no user session found');
+          throw Exception('Initialization timeout');
+        },
+      );
       notifyListeners();
     } catch (e) {
-      print('AuthProvider: Error during initialization: $e');
+      debugPrint('AuthProvider: Error during initialization: $e');
       // Don't set error message during initialization as it's normal when no user is logged in
       _currentUser = null;
       notifyListeners();
@@ -69,24 +76,34 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      print('Attempting login with email: $email');
+      debugPrint('Attempting login with email: $email');
       final success = await _authRepository.login(
         email: email,
         password: password,
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Login timeout - please check your connection');
+        },
       );
 
       if (success) {
-        _currentUser = await _authRepository.getCurrentUser();
-        print('Login successful, user: ${_currentUser?.email}');
+        _currentUser = await _authRepository.getCurrentUser().timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            throw Exception('Failed to load user data');
+          },
+        );
+        debugPrint('Login successful, user: ${_currentUser?.email}');
         notifyListeners();
         return true;
       } else {
-        print('Login failed: Invalid credentials');
+        debugPrint('Login failed: Invalid credentials');
         _setError('Invalid email or password');
         return false;
       }
     } catch (e) {
-      print('Login error: $e');
+      debugPrint('Login error: $e');
       _setError('Login failed: ${e.toString()}');
       return false;
     } finally {
@@ -96,19 +113,19 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> checkUserExists(String email) async {
     try {
-      print('AuthProvider: Checking if user exists: $email');
+      debugPrint('AuthProvider: Checking if user exists: $email');
       final user = await _authRepository.getCurrentUser();
       if (user.email == email) {
-        print('AuthProvider: User exists: ${user.email}');
+        debugPrint('AuthProvider: User exists: ${user.email}');
         return true;
       }
       
       // For demo purposes, we'll check if any user exists with this email
       // In a real app, you'd have a specific method for this
-      print('AuthProvider: User not found for email: $email');
+      debugPrint('AuthProvider: User not found for email: $email');
       return false;
     } catch (e) {
-      print('AuthProvider: Error checking user existence: $e');
+      debugPrint('AuthProvider: Error checking user existence: $e');
       return false;
     }
   }
@@ -121,7 +138,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      print('AuthProvider: Attempting password reset for email: $email');
+      debugPrint('AuthProvider: Attempting password reset for email: $email');
       
       // Get current user and verify email matches
       final currentUser = await _authRepository.getCurrentUser();
@@ -133,10 +150,10 @@ class AuthProvider extends ChangeNotifier {
       // Note: ApiUser doesn't have a password field that can be directly modified
       // In a real implementation, you'd have a separate password reset API endpoint
       // For now, we'll just return true as a placeholder
-      print('AuthProvider: Password reset successful for user: ${currentUser.email}');
+      debugPrint('AuthProvider: Password reset successful for user: ${currentUser.email}');
       return true;
     } catch (e) {
-      print('AuthProvider: Password reset error: $e');
+      debugPrint('AuthProvider: Password reset error: $e');
       _setError('Password reset failed: ${e.toString()}');
       return false;
     } finally {
@@ -157,7 +174,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      print('AuthProvider: Starting Google sign-in...');
+      debugPrint('AuthProvider: Starting Google sign-in...');
       final socialUser = await _socialAuthService.signInWithGoogle();
       
       if (socialUser == null) {
@@ -173,7 +190,7 @@ class AuthProvider extends ChangeNotifier {
       if (existingUser != null) {
         // User exists, log them in
         _currentUser = existingUser;
-        print('AuthProvider: Existing Google user logged in: ${existingUser.email}');
+        debugPrint('AuthProvider: Existing Google user logged in: ${existingUser.email}');
       } else {
         // New user, sign them up
         final success = await _authRepository.signUp(
@@ -188,13 +205,13 @@ class AuthProvider extends ChangeNotifier {
         }
         
         _currentUser = socialUser;
-        print('AuthProvider: New Google user created and logged in: ${socialUser.email}');
+        debugPrint('AuthProvider: New Google user created and logged in: ${socialUser.email}');
       }
       
       notifyListeners();
       return true;
     } catch (e) {
-      print('AuthProvider: Google sign-in error: $e');
+      debugPrint('AuthProvider: Google sign-in error: $e');
       _setError('Google sign-in failed: ${e.toString()}');
       return false;
     } finally {
@@ -208,7 +225,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      print('AuthProvider: Starting Facebook sign-in...');
+      debugPrint('AuthProvider: Starting Facebook sign-in...');
       final socialUser = await _socialAuthService.signInWithFacebook();
       
       if (socialUser == null) {
@@ -222,7 +239,7 @@ class AuthProvider extends ChangeNotifier {
       if (existingUser != null) {
         // User exists, log them in
         _currentUser = existingUser;
-        print('AuthProvider: Existing Facebook user logged in: ${existingUser.email}');
+        debugPrint('AuthProvider: Existing Facebook user logged in: ${existingUser.email}');
       } else {
         // New user, sign them up
         final success = await _authRepository.signUp(
@@ -237,13 +254,13 @@ class AuthProvider extends ChangeNotifier {
         }
         
         _currentUser = socialUser;
-        print('AuthProvider: New Facebook user created and logged in: ${socialUser.email}');
+        debugPrint('AuthProvider: New Facebook user created and logged in: ${socialUser.email}');
       }
       
       notifyListeners();
       return true;
     } catch (e) {
-      print('AuthProvider: Facebook sign-in error: $e');
+      debugPrint('AuthProvider: Facebook sign-in error: $e');
       _setError('Facebook sign-in failed: ${e.toString()}');
       return false;
     } finally {
@@ -261,7 +278,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      print('AuthProvider: Updating user profile: ${user.email}');
+      debugPrint('AuthProvider: Updating user profile: ${user.email}');
       
       // Update the user in the repository
       final success = await _authRepository.updateUser(user);
@@ -269,16 +286,16 @@ class AuthProvider extends ChangeNotifier {
       if (success) {
         // Update the current user in the provider
         _currentUser = user;
-        print('AuthProvider: User updated successfully');
+        debugPrint('AuthProvider: User updated successfully');
         notifyListeners();
         return true;
       } else {
-        print('AuthProvider: Failed to update user');
+        debugPrint('AuthProvider: Failed to update user');
         _setError('Failed to update profile');
         return false;
       }
     } catch (e) {
-      print('AuthProvider: Error updating user: $e');
+      debugPrint('AuthProvider: Error updating user: $e');
       _setError('Profile update failed: ${e.toString()}');
       return false;
     } finally {
@@ -297,7 +314,7 @@ class AuthProvider extends ChangeNotifier {
       }
       return null;
     } catch (e) {
-      print('AuthProvider: Error finding user by email: $e');
+      debugPrint('AuthProvider: Error finding user by email: $e');
       return null;
     }
   }

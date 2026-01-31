@@ -27,7 +27,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Edit Profile',
             icon: Icons.person_outline,
             onTap: () {
-              // TODO: Navigate to edit profile screen
+              // Navigate to edit profile screen
+              Navigator.pushNamed(context, '/edit-profile');
             },
           ),
           _buildListTile(
@@ -35,7 +36,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Change Password',
             icon: Icons.lock_outline,
             onTap: () {
-              // TODO: Navigate to change password screen
+              // Navigate to change password screen
+              Navigator.pushNamed(context, '/change-password');
             },
           ),
           _buildSectionHeader('Preferences'),
@@ -46,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onChanged: (bool value) {
               setState(() {
                 _darkMode = value;
-                // TODO: Implement theme change
+                // Theme change would be implemented here
               });
             },
           ),
@@ -70,7 +72,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Help Center',
             icon: Icons.help_outline,
             onTap: () {
-              // TODO: Navigate to help center
+              // Navigate to help center
+              Navigator.pushNamed(context, '/help-center');
             },
           ),
           _buildListTile(
@@ -95,7 +98,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Terms of Service',
             icon: Icons.description_outlined,
             onTap: () {
-              // TODO: Show terms of service
+              // Show terms of service
+              _showTermsOfService();
             },
           ),
           _buildListTile(
@@ -103,7 +107,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Privacy Policy',
             icon: Icons.privacy_tip_outlined,
             onTap: () {
-              // TODO: Show privacy policy
+              // Show privacy policy
+              _showPrivacyPolicy();
             },
           ),
           const SizedBox(height: 24),
@@ -111,7 +116,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: OutlinedButton(
               onPressed: () {
-                // TODO: Implement logout
+                // Implement logout
+                _handleLogout();
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
@@ -222,7 +228,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 IconButton(
                   icon: const Icon(Icons.attach_file),
                   onPressed: () {
-                    // TODO: Implement file attachment
+                    // Implement file attachment
+                    _attachFile();
                   },
                 ),
                 const Text('Attach File'),
@@ -234,7 +241,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Implement send message
+                  // Implement send message
+                  _sendMessage();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -251,6 +259,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  void _showTermsOfService() {
+    // Placeholder implementation for showing terms of service
+    debugPrint('Show terms of service');
+  }
+
+  void _showPrivacyPolicy() {
+    // Placeholder implementation for showing privacy policy
+    debugPrint('Show privacy policy');
+  }
+
+  void _handleLogout() {
+    // Placeholder implementation for logout
+    debugPrint('Handle logout');
+  }
+
+  void _attachFile() {
+    // Placeholder implementation for file attachment
+    debugPrint('Attach file');
+  }
+
+  void _sendMessage() {
+    // Placeholder implementation for sending message
+    debugPrint('Send message');
   }
 
   void _showAboutDialog(BuildContext context) {

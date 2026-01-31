@@ -1,4 +1,5 @@
 import '../../../../core/services/auth_api_service.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import '../../../../core/models/api_user_model.dart';
 
 class AuthRepository {
@@ -43,7 +44,7 @@ class AuthRepository {
       await _authApiService.logout();
     } catch (e) {
       // Even if logout fails on server, continue with local cleanup
-      print('Logout API call failed: $e');
+      debugPrint('Logout API call failed: $e');
     }
   }
 

@@ -46,7 +46,7 @@ class _ProfileManagementScreenState extends State<ProfileManagementScreen> {
           _additionalPictures = pictures;
         });
       } catch (e) {
-        print('Error loading additional pictures: $e');
+        debugPrint('Error loading additional pictures: $e');
       }
     }
   }
