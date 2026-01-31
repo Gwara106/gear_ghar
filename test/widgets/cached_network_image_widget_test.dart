@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:network_image_mock/network_image_mock.dart';
+import 'package:mockito/annotations.dart';
 import 'package:gear_ghar/core/widgets/cached_network_image_widget.dart';
 
 void main() {
   group('CachedNetworkImageWidget Tests', () {
-    setUp(() async {
-      // Mock network images for testing
-      await mockNetworkImagesFor(() {});
-    });
-
     testWidgets('should display placeholder when imageUrl is empty', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -96,7 +91,6 @@ void main() {
       );
 
       final container = tester.widget<Container>(find.byType(Container).first);
-      final decoration = container.decoration as BoxDecoration;
       
       expect(container.constraints?.maxWidth, equals(200));
       expect(container.constraints?.maxHeight, equals(150));

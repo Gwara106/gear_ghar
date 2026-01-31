@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:dio/dio.dart';
 import 'package:gear_ghar/core/services/upload_service.dart';
@@ -11,11 +10,9 @@ import 'upload_service_test.mocks.dart';
 
 void main() {
   group('UploadService Tests', () {
-    late MockDio mockDio;
     late File testImageFile;
 
     setUp(() {
-      mockDio = MockDio();
       testImageFile = File('test_assets/test_image.jpg');
     });
 

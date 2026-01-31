@@ -1,4 +1,5 @@
 /// Test configuration and utilities
+library test_config;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,7 +19,7 @@ class TestHelpers {
   /// Creates a material app with provider for testing
   static Widget createMaterialAppWithProvider<T extends ChangeNotifier>(
     Widget child, {
-    required T Function() create,
+    required Create<T> create,
   }) {
     return ChangeNotifierProvider<T>(
       create: create,

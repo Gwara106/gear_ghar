@@ -261,12 +261,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Image.asset('assets/icons/facebook.png', width: 24),
                         const SizedBox(width: 10),
-                        const Text(
-                          '       Login with Facebook',
-                          style: TextStyle(
-                            fontFamily: 'Jersey25',
-                            fontSize: 24,
-                            color: Colors.white,
+                        Expanded(
+                          child: const Text(
+                            'Login with Facebook',
+                            style: TextStyle(
+                              fontFamily: 'Jersey25',
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -304,12 +307,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Image.asset('assets/icons/google.png', width: 24),
                         const SizedBox(width: 10),
-                        const Text(
-                          '       Login with Google',
-                          style: TextStyle(
-                            fontFamily: 'Jersey25',
-                            fontSize: 24,
-                            color: Colors.white,
+                        Expanded(
+                          child: const Text(
+                            'Login with Google',
+                            style: TextStyle(
+                              fontFamily: 'Jersey25',
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

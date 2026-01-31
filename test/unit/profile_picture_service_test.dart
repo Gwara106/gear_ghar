@@ -1,24 +1,13 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 import 'package:gear_ghar/core/services/profile_picture_service.dart';
-import 'package:gear_ghar/core/services/upload_service.dart';
-
-// Generate mocks
-@GenerateMocks([UploadService])
-import 'profile_picture_service_test.mocks.dart';
 
 void main() {
   group('ProfilePictureService Tests', () {
-    late MockUploadService mockUploadService;
     late ProfilePictureService service;
-    late File testImageFile;
 
     setUp(() {
-      mockUploadService = MockUploadService();
       service = ProfilePictureService();
-      testImageFile = File('test_assets/test_image.jpg');
     });
 
     test('should return singleton instance', () {
