@@ -9,6 +9,7 @@ class ProductCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onFavoritePressed;
   final VoidCallback onTap;
+  final Map<String, dynamic>? product;
 
   const ProductCard({
     super.key,
@@ -20,6 +21,7 @@ class ProductCard extends StatelessWidget {
     this.isFavorite = false,
     required this.onFavoritePressed,
     required this.onTap,
+    this.product,
   });
 
   @override

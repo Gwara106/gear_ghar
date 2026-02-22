@@ -4,6 +4,8 @@ import 'shared/providers/auth_provider.dart';
 import 'shared/providers/admin_provider.dart';
 import 'shared/widgets/route_guard.dart';
 import 'providers/product_provider.dart';
+import 'providers/cart_provider.dart';
+import 'providers/address_provider.dart';
 import 'presentation/screens/main_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
@@ -13,6 +15,9 @@ import 'features/admin/presentation/screens/admin_user_detail_screen.dart';
 import 'features/admin/presentation/screens/admin_create_user_screen.dart';
 import 'features/admin/presentation/screens/admin_edit_user_screen.dart';
 import 'features/user/presentation/screens/user_profile_screen.dart';
+import 'features/shop/presentation/screens/cart_screen.dart';
+import 'features/shop/presentation/screens/product_detail_screen.dart';
+import 'features/checkout/presentation/screens/simple_checkout_screen.dart';
 import 'core/models/api_user_model.dart';
 
 class App extends StatefulWidget {
@@ -42,6 +47,8 @@ class _AppState extends State<App> {
       providers: [
         ChangeNotifierProvider.value(value: _authProvider),
         ChangeNotifierProvider(create: (context) => ProductProvider()),
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+        ChangeNotifierProvider(create: (context) => AddressProvider()),
         ChangeNotifierProvider(create: (context) => AdminProvider()),
       ],
       child: MaterialApp(
@@ -54,6 +61,8 @@ class _AppState extends State<App> {
           '/user/profile': (context) => const UserProfileScreen().protectRoute(requireAuth: true),
           '/admin/users': (context) => const AdminUsersScreen().protectRoute(requiredRole: 'admin'),
           '/admin/users/create': (context) => const AdminCreateUserScreen().protectRoute(requiredRole: 'admin'),
+          '/cart': (context) => const CartScreen(),
+          '/checkout': (context) => const SimpleCheckoutScreen(),
         },
         onGenerateRoute: (settings) {
           // Handle dynamic routes like /admin/users/[id] and /admin/users/[id]/edit

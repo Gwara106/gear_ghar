@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../shop/presentation/screens/orders_screen.dart';
-import 'addresses_screen.dart';
+import 'addresses_screen_simple.dart';
 import 'payment_methods_screen.dart';
 import 'settings_screen.dart';
 import 'help_center_screen.dart';
@@ -125,7 +125,7 @@ class ProfileScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AddressesScreen(),
+                    builder: (context) => const AddressesScreenSimple(),
                   ),
                 );
               },
