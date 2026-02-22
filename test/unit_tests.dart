@@ -1,6 +1,6 @@
 /// Unit test runner
 /// This file can be used to run all unit tests together
-library unit_tests;
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'unit/upload_service_test.dart' as upload_service;

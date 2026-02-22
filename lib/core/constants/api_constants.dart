@@ -1,5 +1,12 @@
 class ApiConstants {
   static const String baseUrl = 'http://10.0.2.2:5000'; // Updated for Android emulator
+  static const String fallbackUrl = 'http://localhost:5000'; // Fallback for physical devices
+  
+  // Get appropriate base URL based on platform/environment
+  static String getBaseUrl() {
+    // Try primary URL first, fallback if needed
+    return baseUrl;
+  }
   
   // Auth endpoints - Updated to match mobile backend
   static const String register = '/api/v1/users';

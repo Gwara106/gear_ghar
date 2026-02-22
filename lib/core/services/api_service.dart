@@ -49,9 +49,14 @@ class ApiService {
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
     try {
       final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+        Uri.parse('${ApiConstants.getBaseUrl()}$endpoint'),
         headers: _getHeaders(),
         body: jsonEncode(data),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Request timeout - please check your connection');
+        },
       );
       return _handleResponse(response);
     } catch (e) {
@@ -63,8 +68,13 @@ class ApiService {
   Future<dynamic> get(String endpoint) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+        Uri.parse('${ApiConstants.getBaseUrl()}$endpoint'),
         headers: _getHeaders(),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Request timeout - please check your connection');
+        },
       );
       return _handleResponse(response);
     } catch (e) {

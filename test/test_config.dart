@@ -1,5 +1,5 @@
 /// Test configuration and utilities
-library test_config;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,11 +9,7 @@ import 'package:provider/provider.dart';
 class TestHelpers {
   /// Creates a material app wrapper for testing
   static Widget createMaterialApp(Widget child) {
-    return MaterialApp(
-      home: Scaffold(
-        body: child,
-      ),
-    );
+    return MaterialApp(home: Scaffold(body: child));
   }
 
   /// Creates a material app with provider for testing
@@ -23,11 +19,7 @@ class TestHelpers {
   }) {
     return ChangeNotifierProvider<T>(
       create: create,
-      child: MaterialApp(
-        home: Scaffold(
-          body: child,
-        ),
-      ),
+      child: MaterialApp(home: Scaffold(body: child)),
     );
   }
 

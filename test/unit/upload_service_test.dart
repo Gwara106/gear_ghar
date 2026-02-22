@@ -5,8 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:gear_ghar/core/services/upload_service.dart';
 
 // Generate mocks
-@GenerateMocks([Dio])
-import 'upload_service_test.mocks.dart';
 
 void main() {
   group('UploadService Tests', () {
@@ -32,7 +30,7 @@ void main() {
 
     test('should reject non-existent file', () async {
       final nonExistentFile = File('non_existent_file.jpg');
-      
+
       final isValid = await UploadService.isImageFileValid(nonExistentFile);
       expect(isValid, isFalse);
     });
@@ -51,7 +49,7 @@ void main() {
     test('should reject oversized file', () async {
       final tempDir = Directory.systemTemp;
       final testFile = File('${tempDir.path}/large_image.jpg');
-      
+
       // Create a file larger than 5MB (simulate)
       final largeData = List.filled(6 * 1024 * 1024, 0); // 6MB
       await testFile.writeAsBytes(largeData);

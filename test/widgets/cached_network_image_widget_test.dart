@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:gear_ghar/core/widgets/cached_network_image_widget.dart';
 
 void main() {
   group('CachedNetworkImageWidget Tests', () {
-    testWidgets('should display placeholder when imageUrl is empty', (WidgetTester tester) async {
+    testWidgets('should display placeholder when imageUrl is empty', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -22,7 +23,9 @@ void main() {
       expect(find.byIcon(Icons.image_outlined), findsOneWidget);
     });
 
-    testWidgets('should display placeholder when imageUrl is null', (WidgetTester tester) async {
+    testWidgets('should display placeholder when imageUrl is null', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -39,7 +42,9 @@ void main() {
       expect(find.byIcon(Icons.image_outlined), findsOneWidget);
     });
 
-    testWidgets('should handle network URL loading with timeout', (WidgetTester tester) async {
+    testWidgets('should handle network URL loading with timeout', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -54,12 +59,14 @@ void main() {
 
       // Use pump instead of pumpAndSettle to avoid timeout
       await tester.pump(const Duration(milliseconds: 100));
-      
+
       // Check that the widget is rendered (either loading or error state)
       expect(find.byType(CachedNetworkImageWidget), findsOneWidget);
     });
 
-    testWidgets('should display asset image when asset path provided', (WidgetTester tester) async {
+    testWidgets('should display asset image when asset path provided', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -77,7 +84,9 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
     });
 
-    testWidgets('should apply custom dimensions correctly', (WidgetTester tester) async {
+    testWidgets('should apply custom dimensions correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -91,7 +100,7 @@ void main() {
       );
 
       final container = tester.widget<Container>(find.byType(Container).first);
-      
+
       expect(container.constraints?.maxWidth, equals(200));
       expect(container.constraints?.maxHeight, equals(150));
     });
