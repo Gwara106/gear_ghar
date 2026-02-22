@@ -1,7 +1,94 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/payment_method_model.dart';
+import '../../../../core/services/payment_method_api_service.dart';
+import 'add_edit_payment_method_screen.dart';
 
-class PaymentMethodsScreen extends StatelessWidget {
+class PaymentMethodsScreen extends StatefulWidget {
   const PaymentMethodsScreen({super.key});
+
+  @override
+  State<PaymentMethodsScreen> createState() => _PaymentMethodsScreenState();
+}
+
+class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
+  final PaymentMethodApiService _paymentService = PaymentMethodApiService();
+  List<PaymentMethod> _paymentMethods = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPaymentMethods();
+  }
+
+  Future<void> _loadPaymentMethods() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final paymentMethods = await _paymentService.getPaymentMethods();
+      setState(() {
+        _paymentMethods = paymentMethods;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _deletePaymentMethod(PaymentMethod paymentMethod) async {
+    try {
+      await _paymentService.deletePaymentMethod(paymentMethod.id!);
+      _loadPaymentMethods();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment method deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete payment method: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _setDefaultPaymentMethod(PaymentMethod paymentMethod) async {
+    try {
+      await _paymentService.setDefaultPaymentMethod(paymentMethod.id!);
+      _loadPaymentMethods();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Default payment method updated'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to set default payment method: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,86 +98,86 @@ class PaymentMethodsScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildPaymentMethodCard(
-            context,
-            index: 0,
-            cardType: 'VISA',
-            lastFour: '4242',
-            expiryDate: '12/25',
-            isDefault: true,
-          ),
-          const SizedBox(height: 16),
-          _buildPaymentMethodCard(
-            context,
-            index: 1,
-            cardType: 'MASTERCARD',
-            lastFour: '1881',
-            expiryDate: '06/26',
-            isDefault: false,
-          ),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: () {
-              // Implement add new payment method
-              _showAddPaymentMethod(context);
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Add New Card'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              side: BorderSide(
-                color: Theme.of(context).primaryColor,
-                width: 1.5,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextButton.icon(
-            onPressed: () {
-              // Implement add PayPal
-              _addPayPalAccount();
-            },
-            icon: Image.asset(
-              'assets/images/paypal.png',
-              height: 24,
-              width: 24,
-              errorBuilder: (context, error, stackTrace) => 
-                  const Icon(Icons.payment, size: 24),
-            ),
-            label: const Text('Add PayPal'),
-            style: TextButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ],
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Error loading payment methods',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(_error!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadPaymentMethods,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : _paymentMethods.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.payment_outlined,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No payment methods yet',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text('Add your first payment method to get started'),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () => _navigateToAddEditPaymentMethod(),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add Payment Method'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _loadPaymentMethods,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16.0),
+                        itemCount: _paymentMethods.length,
+                        itemBuilder: (context, index) {
+                          final paymentMethod = _paymentMethods[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: _buildPaymentMethodCard(context, paymentMethod),
+                          );
+                        },
+                      ),
+                    ),
+      floatingActionButton: _paymentMethods.isNotEmpty
+          ? FloatingActionButton(
+              onPressed: () => _navigateToAddEditPaymentMethod(),
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
-  Widget _buildPaymentMethodCard(
-    BuildContext context, {
-    required int index,
-    required String cardType,
-    required String lastFour,
-    required String expiryDate,
-    required bool isDefault,
-  }) {
+  Widget _buildPaymentMethodCard(BuildContext context, PaymentMethod paymentMethod) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isDefault ? Theme.of(context).primaryColor : Colors.grey.shade300,
-          width: isDefault ? 2 : 1,
+          color: paymentMethod.isDefault == true
+              ? Theme.of(context).primaryColor
+              : Colors.grey.shade300,
+          width: paymentMethod.isDefault == true ? 2 : 1,
         ),
       ),
       child: Padding(
@@ -103,26 +190,10 @@ class PaymentMethodsScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    cardType == 'VISA'
-                        ? Image.asset(
-                            'assets/images/visa.png',
-                            height: 24,
-                            width: 40,
-                            errorBuilder: (context, error, stackTrace) => 
-                                const Icon(Icons.credit_card, size: 24),
-                          )
-                        : cardType == 'MASTERCARD'
-                            ? Image.asset(
-                                'assets/images/mastercard.png',
-                                height: 24,
-                                width: 40,
-                                errorBuilder: (context, error, stackTrace) => 
-                                    const Icon(Icons.credit_card, size: 24),
-                              )
-                            : const Icon(Icons.credit_card, size: 24),
+                    _getPaymentIcon(paymentMethod),
                     const SizedBox(width: 12),
                     Text(
-                      '$cardType •••• $lastFour',
+                      paymentMethod.displayText,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -130,7 +201,7 @@ class PaymentMethodsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (isDefault)
+                if (paymentMethod.isDefault == true)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -155,21 +226,21 @@ class PaymentMethodsScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Expires $expiryDate',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
+                if (paymentMethod.expiryDate.isNotEmpty)
+                  Text(
+                    'Expires ${paymentMethod.expiryDate}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
                 Row(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),
-                      onPressed: () {
-                        // Implement edit payment method
-                        _editPaymentMethod(index);
-                      },
+                      onPressed: () => _navigateToAddEditPaymentMethod(paymentMethod: paymentMethod),
                       color: Colors.grey[600],
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -177,12 +248,10 @@ class PaymentMethodsScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 20),
-                      onPressed: () {
-                        if (!isDefault) {
-                          _showDeleteConfirmation(context, index);
-                        }
-                      },
-                      color: isDefault ? Colors.grey[400] : Colors.red[400],
+                      onPressed: paymentMethod.isDefault == true 
+                          ? null 
+                          : () => _showDeleteConfirmation(context, paymentMethod),
+                      color: paymentMethod.isDefault == true ? Colors.grey[400] : Colors.red[400],
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -190,15 +259,12 @@ class PaymentMethodsScreen extends StatelessWidget {
                 ),
               ],
             ),
-            if (!isDefault) ...[
+            if (paymentMethod.isDefault != true) ...[
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () {
-                    // Implement set as default
-                    _setAsDefault(index);
-                  },
+                  onPressed: () => _setDefaultPaymentMethod(paymentMethod),
                   child: const Text('Set as Default'),
                 ),
               ),
@@ -209,110 +275,58 @@ class PaymentMethodsScreen extends StatelessWidget {
     );
   }
 
-  void _showAddPaymentMethod(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Add New Card',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Card Number',
-                hintText: '1234 5678 9012 3456',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.credit_card),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Expiry Date',
-                      hintText: 'MM/YY',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.datetime,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'CVV',
-                      hintText: '123',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    obscureText: true,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Cardholder Name',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person_outline),
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Implement save payment method
-                  _savePaymentMethod();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Payment method added successfully'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-                child: const Text('Save Card'),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
+  Widget _getPaymentIcon(PaymentMethod paymentMethod) {
+    switch (paymentMethod.type) {
+      case 'card':
+        if (paymentMethod.cardType == 'VISA') {
+          return Image.asset(
+            'assets/images/visa.png',
+            height: 24,
+            width: 40,
+            errorBuilder: (context, error, stackTrace) => 
+                const Icon(Icons.credit_card, size: 24),
+          );
+        } else if (paymentMethod.cardType == 'MASTERCARD') {
+          return Image.asset(
+            'assets/images/mastercard.png',
+            height: 24,
+            width: 40,
+            errorBuilder: (context, error, stackTrace) => 
+                const Icon(Icons.credit_card, size: 24),
+          );
+        }
+        return const Icon(Icons.credit_card, size: 24);
+      case 'paypal':
+        return Image.asset(
+          'assets/images/paypal.png',
+          height: 24,
+          width: 24,
+          errorBuilder: (context, error, stackTrace) => 
+              const Icon(Icons.payment, size: 24),
+        );
+      case 'bank_account':
+        return const Icon(Icons.account_balance, size: 24);
+      default:
+        return const Icon(Icons.credit_card, size: 24);
+    }
   }
 
-  void _showDeleteConfirmation(BuildContext context, int index) {
+  void _navigateToAddEditPaymentMethod({PaymentMethod? paymentMethod}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditPaymentMethodScreen(paymentMethod: paymentMethod),
+      ),
+    ).then((_) => _loadPaymentMethods());
+  }
+
+  void _showDeleteConfirmation(BuildContext context, PaymentMethod paymentMethod) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Remove Payment Method'),
-          content: const Text(
-              'Are you sure you want to remove this payment method?'),
+          content: const Text('Are you sure you want to remove this payment method?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -321,48 +335,13 @@ class PaymentMethodsScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Implement delete payment method logic
-                _deletePaymentMethod(index);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Payment method removed successfully'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
+                _deletePaymentMethod(paymentMethod);
               },
-              child: const Text(
-                'Remove',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Remove', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
       },
     );
-  }
-
-  void _addPayPalAccount() {
-    // Placeholder implementation for adding PayPal account
-    debugPrint('Add PayPal account');
-  }
-
-  void _editPaymentMethod(int index) {
-    // Placeholder implementation for editing payment method
-    debugPrint('Edit payment method at index: $index');
-  }
-
-  void _setAsDefault(int index) {
-    // Placeholder implementation for setting payment method as default
-    debugPrint('Set payment method at index $index as default');
-  }
-
-  void _savePaymentMethod() {
-    // Placeholder implementation for saving payment method
-    debugPrint('Save payment method');
-  }
-
-  void _deletePaymentMethod(int index) {
-    // Placeholder implementation for deleting payment method
-    debugPrint('Delete payment method at index: $index');
   }
 }

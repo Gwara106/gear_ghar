@@ -1,7 +1,94 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/address_model.dart';
+import '../../../../core/services/address_api_service.dart';
+import 'add_edit_address_screen.dart';
 
-class AddressesScreen extends StatelessWidget {
+class AddressesScreen extends StatefulWidget {
   const AddressesScreen({super.key});
+
+  @override
+  State<AddressesScreen> createState() => _AddressesScreenState();
+}
+
+class _AddressesScreenState extends State<AddressesScreen> {
+  final AddressApiService _addressService = AddressApiService();
+  List<Address> _addresses = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAddresses();
+  }
+
+  Future<void> _loadAddresses() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final addresses = await _addressService.getAddresses();
+      setState(() {
+        _addresses = addresses;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _deleteAddress(Address address) async {
+    try {
+      await _addressService.deleteAddress(address.id!);
+      _loadAddresses();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Address deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete address: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _setDefaultAddress(Address address) async {
+    try {
+      await _addressService.setDefaultAddress(address.id!);
+      _loadAddresses();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Default address updated'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to set default address: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,63 +98,86 @@ class AddressesScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildAddressCard(
-            context,
-            index: 0,
-            name: 'Home',
-            address: '123 Main Street, Apt 4B\nNew York, NY 10001',
-            phone: '+1 234 567 8900',
-            isDefault: true,
-          ),
-          const SizedBox(height: 16),
-          _buildAddressCard(
-            context,
-            index: 1,
-            name: 'Work',
-            address: '456 Business Ave, Floor 5\nNew York, NY 10022',
-            phone: '+1 234 567 8901',
-            isDefault: false,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              // Implement add new address
-              _showAddAddressDialog();
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Add New Address'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ],
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Error loading addresses',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(_error!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadAddresses,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : _addresses.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No addresses yet',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text('Add your first address to get started'),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () => _navigateToAddEditAddress(),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add Address'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _loadAddresses,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16.0),
+                        itemCount: _addresses.length,
+                        itemBuilder: (context, index) {
+                          final address = _addresses[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: _buildAddressCard(context, address),
+                          );
+                        },
+                      ),
+                    ),
+      floatingActionButton: _addresses.isNotEmpty
+          ? FloatingActionButton(
+              onPressed: () => _navigateToAddEditAddress(),
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
-  Widget _buildAddressCard(
-    BuildContext context, {
-    required int index,
-    required String name,
-    required String address,
-    required String phone,
-    required bool isDefault,
-  }) {
+  Widget _buildAddressCard(BuildContext context, Address address) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isDefault
+          color: address.isDefault == true
               ? Theme.of(context).primaryColor
               : Colors.grey.shade300,
-          width: isDefault ? 2 : 1,
+          width: address.isDefault == true ? 2 : 1,
         ),
       ),
       child: Padding(
@@ -79,22 +189,20 @@ class AddressesScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  name,
+                  address.displayName,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (isDefault)
+                if (address.isDefault == true)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).primaryColor.withValues(alpha: 0.1),
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -110,12 +218,12 @@ class AddressesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              address,
+              address.fullAddress,
               style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 8),
             Text(
-              'Phone: $phone',
+              'Phone: ${address.phoneNumber ?? "N/A"}',
               style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 16),
@@ -123,32 +231,21 @@ class AddressesScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {
-                    // Implement edit address
-                    _editAddress(index);
-                  },
+                  onPressed: () => _navigateToAddEditAddress(address: address),
                   child: const Text('Edit'),
                 ),
                 const SizedBox(width: 8),
                 TextButton(
-                  onPressed: () {
-                    if (!isDefault) {
-                      // Implement delete address
-                      _showDeleteConfirmation(context, index);
-                    }
-                  },
+                  onPressed: address.isDefault == true ? null : () => _showDeleteConfirmation(context, address),
                   style: TextButton.styleFrom(
-                    foregroundColor: isDefault ? Colors.grey : Colors.red,
+                    foregroundColor: address.isDefault == true ? Colors.grey : Colors.red,
                   ),
                   child: const Text('Delete'),
                 ),
-                if (!isDefault) ...[
+                if (address.isDefault != true) ...[
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: () {
-                      // Implement set as default
-                      _setAsDefault(index);
-                    },
+                    onPressed: () => _setDefaultAddress(address),
                     child: const Text('Set as Default'),
                   ),
                 ],
@@ -160,7 +257,16 @@ class AddressesScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, int index) {
+  void _navigateToAddEditAddress({Address? address}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditAddressScreen(address: address),
+      ),
+    ).then((_) => _loadAddresses());
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Address address) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -175,14 +281,7 @@ class AddressesScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Implement delete address logic
-                _deleteAddress(index);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Address deleted successfully'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
+                _deleteAddress(address);
               },
               child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
@@ -190,25 +289,5 @@ class AddressesScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  void _showAddAddressDialog() {
-    // Placeholder implementation for adding new address
-    debugPrint('Show add address dialog');
-  }
-
-  void _editAddress(int index) {
-    // Placeholder implementation for editing address
-    debugPrint('Edit address at index: $index');
-  }
-
-  void _setAsDefault(int index) {
-    // Placeholder implementation for setting address as default
-    debugPrint('Set address at index $index as default');
-  }
-
-  void _deleteAddress(int index) {
-    // Placeholder implementation for deleting address
-    debugPrint('Delete address at index: $index');
   }
 }

@@ -1,17 +1,13 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:dio/dio.dart';
 import 'package:gear_ghar/core/services/upload_service.dart';
 
 // Generate mocks
 
 void main() {
   group('UploadService Tests', () {
-    late File testImageFile;
-
     setUp(() {
-      testImageFile = File('test_assets/test_image.jpg');
+      // Setup test environment
     });
 
     test('should validate image file correctly', () async {

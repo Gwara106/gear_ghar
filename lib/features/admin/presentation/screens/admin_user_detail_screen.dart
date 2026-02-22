@@ -77,9 +77,9 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
 
     if (confirmed == true && _user != null) {
       final success = await context.read<AdminProvider>().deleteUser(_user!.id);
-      if (success && mounted) {
-        Navigator.pop(context);
+      if (success) {
         if (mounted) {
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('User deleted successfully')),
           );
