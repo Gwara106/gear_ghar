@@ -7,19 +7,19 @@ part 'address_provider.g.dart';
 class Address extends HiveObject {
   @HiveField(0)
   final String? id;
-  
+
   @HiveField(1)
   final String name;
-  
+
   @HiveField(2)
   final String street;
-  
+
   @HiveField(3)
   final String city;
-  
+
   @HiveField(4)
   final String phone;
-  
+
   @HiveField(5)
   bool isDefault;
 
@@ -59,10 +59,11 @@ class Address extends HiveObject {
 }
 
 class AddressProvider with ChangeNotifier {
-  static const String _addressBoxName = 'addresses';
+  static const String _addressBoxPrefix = 'addresses_';
   Box<Address>? _addressBox;
   List<Address> _addresses = [];
   bool _isInitialized = false;
+  String? _currentUserId;
 
   AddressProvider() {
     // Initialize when provider is created
@@ -81,6 +82,8 @@ class AddressProvider with ChangeNotifier {
 
   bool get isInitialized => _isInitialized;
 
+  String? get currentUserId => _currentUserId;
+
   Address? get defaultAddress {
     try {
       return _addresses.firstWhere((address) => address.isDefault);
@@ -89,16 +92,25 @@ class AddressProvider with ChangeNotifier {
     }
   }
 
+  String _getBoxName() {
+    final userId = _currentUserId ?? 'guest';
+    final boxName = '$_addressBoxPrefix$userId';
+    debugPrint('AddressProvider: Using box name: $boxName');
+    return boxName;
+  }
+
   Future<void> _initBox() async {
     try {
       if (_isInitialized) return; // Already initialized
-      
-      if (!Hive.isBoxOpen(_addressBoxName)) {
-        _addressBox = await Hive.openBox<Address>(_addressBoxName);
+
+      final boxName = _getBoxName();
+
+      if (!Hive.isBoxOpen(boxName)) {
+        _addressBox = await Hive.openBox<Address>(boxName);
       } else {
-        _addressBox = Hive.box<Address>(_addressBoxName);
+        _addressBox = Hive.box<Address>(boxName);
       }
-      
+
       _loadAddresses();
       _isInitialized = true;
     } catch (e) {
@@ -112,7 +124,20 @@ class AddressProvider with ChangeNotifier {
   void _loadAddresses() {
     try {
       if (_addressBox != null) {
-        _addresses = _addressBox!.values.toList();
+        // Create new instances from Hive to avoid shared references
+        _addresses = _addressBox!.values
+            .map(
+              (addr) => Address(
+                id: addr.id,
+                name: addr.name,
+                street: addr.street,
+                city: addr.city,
+                phone: addr.phone,
+                isDefault: addr.isDefault,
+              ),
+            )
+            .toList();
+
         // If no addresses exist, add default ones
         if (_addresses.isEmpty) {
           _addDefaultAddresses();
@@ -133,7 +158,7 @@ class AddressProvider with ChangeNotifier {
       _addDefaultAddressesToMemory();
       return;
     }
-    
+
     final defaultAddresses = [
       Address(
         id: '1',
@@ -152,7 +177,7 @@ class AddressProvider with ChangeNotifier {
         isDefault: false,
       ),
     ];
-    
+
     for (final address in defaultAddresses) {
       _addressBox!.put(address.id, address);
     }
@@ -188,6 +213,7 @@ class AddressProvider with ChangeNotifier {
         await _initBox();
       }
 
+      // Create a completely new address instance to avoid shared references
       final newAddress = Address(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: address.name,
@@ -198,20 +224,32 @@ class AddressProvider with ChangeNotifier {
       );
 
       if (newAddress.isDefault) {
-        // Set all other addresses to non-default
+        // Set all other addresses to non-default by creating new instances
+        final updatedAddresses = <Address>[];
         for (var addr in _addresses) {
-          addr.isDefault = false;
+          final updatedAddr = Address(
+            id: addr.id,
+            name: addr.name,
+            street: addr.street,
+            city: addr.city,
+            phone: addr.phone,
+            isDefault: false,
+          );
+          updatedAddresses.add(updatedAddr);
+
           if (_addressBox != null) {
-            await _addressBox!.put(addr.id, addr);
+            await _addressBox!.put(addr.id, updatedAddr);
           }
         }
+        _addresses.clear();
+        _addresses.addAll(updatedAddresses);
       }
 
       // Save to Hive if available, otherwise use memory-only storage
       if (_addressBox != null) {
         await _addressBox!.put(newAddress.id, newAddress);
       }
-      
+
       _addresses.add(newAddress);
       notifyListeners();
     } catch (e) {
@@ -222,6 +260,10 @@ class AddressProvider with ChangeNotifier {
 
   Future<void> updateAddress(Address address) async {
     try {
+      debugPrint(
+        'AddressProvider: Updating address ${address.id} for user $_currentUserId',
+      );
+
       // Ensure initialization
       if (!_isInitialized) {
         await _initBox();
@@ -229,20 +271,79 @@ class AddressProvider with ChangeNotifier {
 
       final index = _addresses.indexWhere((addr) => addr.id == address.id);
       if (index != -1) {
-        if (address.isDefault) {
-          // Set all other addresses to non-default
+        // Create a new address instance to avoid shared references
+        final updatedAddress = Address(
+          id: address.id,
+          name: address.name,
+          street: address.street,
+          city: address.city,
+          phone: address.phone,
+          isDefault: address.isDefault,
+        );
+
+        debugPrint(
+          'AddressProvider: Created new address instance: ${updatedAddress.name} - Default: ${updatedAddress.isDefault}',
+        );
+
+        if (updatedAddress.isDefault) {
+          // Set all other addresses to non-default by creating new instances
+          final updatedAddresses = <Address>[];
           for (var addr in _addresses) {
-            addr.isDefault = false;
-            if (_addressBox != null) {
-              await _addressBox!.put(addr.id, addr);
+            if (addr.id != address.id) {
+              final updatedAddr = Address(
+                id: addr.id,
+                name: addr.name,
+                street: addr.street,
+                city: addr.city,
+                phone: addr.phone,
+                isDefault: false,
+              );
+              updatedAddresses.add(updatedAddr);
+
+              if (_addressBox != null) {
+                await _addressBox!.put(addr.id, updatedAddr);
+                debugPrint(
+                  'AddressProvider: Updated non-default address ${addr.id} in storage',
+                );
+              }
             }
           }
+
+          // Rebuild addresses list with updated instances
+          _addresses.clear();
+          _addresses.addAll(updatedAddresses);
+          _addresses.add(updatedAddress);
+
+          debugPrint(
+            'AddressProvider: Rebuilt address list with ${_addresses.length} addresses',
+          );
+        } else {
+          // Just replace the address at index
+          _addresses[index] = updatedAddress;
+          debugPrint('AddressProvider: Replaced address at index $index');
         }
-        _addresses[index] = address;
+
         if (_addressBox != null) {
-          await _addressBox!.put(address.id, address);
+          await _addressBox!.put(updatedAddress.id, updatedAddress);
+          debugPrint(
+            'AddressProvider: Saved updated address ${updatedAddress.id} to storage',
+          );
         }
+
         notifyListeners();
+
+        debugPrint(
+          'AddressProvider: Update complete. Current addresses for $_currentUserId:',
+        );
+        for (var addr in _addresses) {
+          debugPrint(
+            'AddressProvider: - ${addr.name} (${addr.id}) - Default: ${addr.isDefault}',
+          );
+        }
+      } else {
+        debugPrint(
+          'AddressProvider: Address ${address.id} not found for update',
+        );
       }
     } catch (e) {
       debugPrint('Error updating address: $e');
@@ -258,8 +359,8 @@ class AddressProvider with ChangeNotifier {
       }
 
       final addressToDelete = _addresses.firstWhere((addr) => addr.id == id);
-      
-      // Don't allow deletion if it's the only address
+
+      // Don't allow deletion if it's only address
       if (_addresses.length <= 1) {
         return;
       }
@@ -267,11 +368,16 @@ class AddressProvider with ChangeNotifier {
       // Don't allow deletion of default address if there are other addresses
       if (addressToDelete.isDefault && _addresses.length > 1) {
         // Set another address as default before deleting
-        final otherAddresses = _addresses.where((addr) => addr.id != id).toList();
+        final otherAddresses = _addresses
+            .where((addr) => addr.id != id)
+            .toList();
         if (otherAddresses.isNotEmpty) {
           otherAddresses.first.isDefault = true;
           if (_addressBox != null) {
-            await _addressBox!.put(otherAddresses.first.id, otherAddresses.first);
+            await _addressBox!.put(
+              otherAddresses.first.id,
+              otherAddresses.first,
+            );
           }
         }
       }
@@ -294,12 +400,27 @@ class AddressProvider with ChangeNotifier {
         await _initBox();
       }
 
+      // Create new address instances to avoid shared references
+      final updatedAddresses = <Address>[];
       for (var address in _addresses) {
-        address.isDefault = address.id == id;
+        final updatedAddr = Address(
+          id: address.id,
+          name: address.name,
+          street: address.street,
+          city: address.city,
+          phone: address.phone,
+          isDefault: address.id == id,
+        );
+        updatedAddresses.add(updatedAddr);
+
         if (_addressBox != null) {
-          await _addressBox!.put(address.id, address);
+          await _addressBox!.put(address.id, updatedAddr);
         }
       }
+
+      // Replace the entire list with new instances
+      _addresses.clear();
+      _addresses.addAll(updatedAddresses);
       notifyListeners();
     } catch (e) {
       debugPrint('Error setting default address: $e');
@@ -321,7 +442,7 @@ class AddressProvider with ChangeNotifier {
       if (!_isInitialized) {
         await _initBox();
       }
-      
+
       if (_addressBox != null) {
         await _addressBox!.clear();
       }
@@ -332,10 +453,51 @@ class AddressProvider with ChangeNotifier {
     }
   }
 
+  // Method to set current user and reload addresses
+  Future<void> setCurrentUser(String? userId) async {
+    debugPrint('AddressProvider: Setting current user to: $userId');
+    debugPrint('AddressProvider: Previous user was: $_currentUserId');
+
+    if (_currentUserId == userId) {
+      debugPrint('AddressProvider: Same user, no need to reload');
+      return; // Same user, no need to reload
+    }
+
+    _currentUserId = userId;
+    _isInitialized = false; // Reset initialization flag
+    _addressBox = null;
+    _addresses = []; // Clear memory completely
+
+    await _initBox();
+
+    debugPrint(
+      'AddressProvider: Loaded ${_addresses.length} addresses for user: $userId',
+    );
+    for (var addr in _addresses) {
+      debugPrint(
+        'AddressProvider: Address - ${addr.name} (${addr.id}) - Default: ${addr.isDefault}',
+      );
+    }
+  }
+
+  // Method to clear user data when they log out
+  Future<void> clearUserData() async {
+    try {
+      if (_addressBox != null) {
+        await _addressBox!.clear();
+      }
+      _addresses = [];
+      _currentUserId = null;
+      _isInitialized = false;
+      _addressBox = null;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error clearing user data: $e');
+    }
+  }
+
   // Initialize the provider
   Future<void> initialize() async {
-    if (!_isInitialized) {
-      await _initBox();
-    }
+    await _initBox();
   }
 }

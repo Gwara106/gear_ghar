@@ -8,10 +8,31 @@ import 'settings_screen.dart';
 import 'help_center_screen.dart';
 import 'edit_profile_screen.dart';
 import '../../../../shared/providers/auth_provider.dart';
+import '../../../../providers/address_provider.dart';
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Set current user in address provider when profile screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+      
+      if (authProvider.currentUser != null) {
+        addressProvider.setCurrentUser(authProvider.currentUser!.email);
+        debugPrint('ProfileScreen: Set address provider user to: ${authProvider.currentUser!.email}');
+      }
+    });
+  }
 
   ImageProvider _buildProfileImage(String? profilePicture) {
     if (profilePicture != null && profilePicture.isNotEmpty) {

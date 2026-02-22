@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../providers/product_provider.dart';
 import '../../../../providers/cart_provider.dart';
-import '../../../home/presentation/widgets/product_card.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final Map<String, dynamic> product;
 
-  const ProductDetailScreen({
-    super.key,
-    required this.product,
-  });
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +66,9 @@ class ProductDetailScreen extends StatelessWidget {
               width: double.infinity,
               height: 300,
               color: Colors.white,
-              child: Image.asset(
-                product['imageUrl'],
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset(product['imageUrl'], fit: BoxFit.contain),
             ),
-            
+
             // Product Info
             Container(
               color: Colors.white,
@@ -87,13 +79,10 @@ class ProductDetailScreen extends StatelessWidget {
                   // Category
                   Text(
                     product['category'],
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Product Name
                   Text(
                     product['name'],
@@ -103,7 +92,7 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Rating and Reviews
                   Row(
                     children: [
@@ -113,8 +102,8 @@ class ProductDetailScreen extends StatelessWidget {
                             index < product['rating'].floor()
                                 ? Icons.star
                                 : index < product['rating']
-                                    ? Icons.star_half
-                                    : Icons.star_border,
+                                ? Icons.star_half
+                                : Icons.star_border,
                             color: Colors.amber,
                             size: 20,
                           );
@@ -131,7 +120,7 @@ class ProductDetailScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Price
                   Text(
                     product['price'],
@@ -142,10 +131,13 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Stock Status
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -154,7 +146,11 @@ class ProductDetailScreen extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 16,
+                        ),
                         const SizedBox(width: 4),
                         const Text(
                           'In Stock',
@@ -169,9 +165,9 @@ class ProductDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Description
             Container(
               color: Colors.white,
@@ -181,10 +177,7 @@ class ProductDetailScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Description',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -198,9 +191,9 @@ class ProductDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Product Details
             Container(
               color: Colors.white,
@@ -210,10 +203,7 @@ class ProductDetailScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Product Details',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   _buildDetailRow('Category', product['category']),
@@ -224,9 +214,9 @@ class ProductDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Reviews Section
             Container(
               color: Colors.white,
@@ -236,10 +226,7 @@ class ProductDetailScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Customer Reviews',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   ...List.generate(3, (index) => _buildReviewItem(index)),
@@ -255,12 +242,12 @@ class ProductDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 100), // Space for bottom buttons
           ],
         ),
       ),
-      
+
       // Bottom Action Buttons
       bottomNavigationBar: Container(
         color: Colors.white,
@@ -341,12 +328,7 @@ class ProductDetailScreen extends StatelessWidget {
           ),
           const Text(': '),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Colors.black87,
-              ),
-            ),
+            child: Text(value, style: const TextStyle(color: Colors.black87)),
           ),
         ],
       ),
@@ -359,13 +341,15 @@ class ProductDetailScreen extends StatelessWidget {
         'name': 'Rajesh Sharma',
         'rating': 5.0,
         'date': '2 weeks ago',
-        'comment': 'Excellent product! Exactly as described. Fast delivery and great quality.',
+        'comment':
+            'Excellent product! Exactly as described. Fast delivery and great quality.',
       },
       {
         'name': 'Priya Patel',
         'rating': 4.0,
         'date': '1 month ago',
-        'comment': 'Good quality product. Fits perfectly on my bike. Would recommend.',
+        'comment':
+            'Good quality product. Fits perfectly on my bike. Would recommend.',
       },
       {
         'name': 'Amit Kumar',
@@ -376,7 +360,7 @@ class ProductDetailScreen extends StatelessWidget {
     ];
 
     final review = reviews[index % reviews.length];
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(12),
@@ -392,16 +376,11 @@ class ProductDetailScreen extends StatelessWidget {
             children: [
               Text(
                 review['name'] as String,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               Text(
                 review['date'] as String,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ],
           ),
@@ -413,8 +392,8 @@ class ProductDetailScreen extends StatelessWidget {
                 index < rating.floor()
                     ? Icons.star
                     : index < rating
-                        ? Icons.star_half
-                        : Icons.star_border,
+                    ? Icons.star_half
+                    : Icons.star_border,
                 color: Colors.amber,
                 size: 16,
               );
@@ -432,7 +411,7 @@ class ProductDetailScreen extends StatelessWidget {
 
   String _getProductDescription(Map<String, dynamic> product) {
     final category = product['category'].toString().toLowerCase();
-    
+
     switch (category) {
       case 'exhaust':
         return 'High-performance exhaust system designed to enhance your motorcycle\'s sound and power output. Made from premium stainless steel with precision welding for durability and optimal performance. Easy bolt-on installation with no modifications required.';
@@ -453,7 +432,7 @@ class ProductDetailScreen extends StatelessWidget {
 
   String _getBrandName(Map<String, dynamic> product) {
     final category = product['category'].toString().toLowerCase();
-    
+
     switch (category) {
       case 'exhaust':
         return 'Akrapovic';
@@ -473,14 +452,19 @@ class ProductDetailScreen extends StatelessWidget {
   }
 
   String _generateSKU(Map<String, dynamic> product) {
-    final category = product['category'].toString().substring(0, 3).toUpperCase();
-    final random = (product['name'].toString().length % 1000).toString().padLeft(3, '0');
+    final category = product['category']
+        .toString()
+        .substring(0, 3)
+        .toUpperCase();
+    final random = (product['name'].toString().length % 1000)
+        .toString()
+        .padLeft(3, '0');
     return 'GG$category$random';
   }
 
   String _getWeight(Map<String, dynamic> product) {
     final category = product['category'].toString().toLowerCase();
-    
+
     switch (category) {
       case 'exhaust':
         return '3.5 kg';
@@ -501,7 +485,7 @@ class ProductDetailScreen extends StatelessWidget {
 
   String _getDimensions(Map<String, dynamic> product) {
     final category = product['category'].toString().toLowerCase();
-    
+
     switch (category) {
       case 'exhaust':
         return '60 x 30 x 20 cm';

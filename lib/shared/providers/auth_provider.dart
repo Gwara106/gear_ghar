@@ -6,7 +6,7 @@ import '../../core/services/social_auth_service.dart';
 class AuthProvider extends ChangeNotifier {
   final AuthRepositoryImpl _authRepository = AuthRepositoryImpl();
   final SocialAuthService _socialAuthService = SocialAuthService();
-  
+ 
   ApiUser? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
@@ -26,11 +26,13 @@ class AuthProvider extends ChangeNotifier {
           throw Exception('Initialization timeout');
         },
       );
+      
       notifyListeners();
     } catch (e) {
       debugPrint('AuthProvider: Error during initialization: $e');
       // Don't set error message during initialization as it's normal when no user is logged in
       _currentUser = null;
+      
       notifyListeners();
     }
   }
@@ -54,6 +56,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (success) {
         _currentUser = await _authRepository.getCurrentUser();
+        
         notifyListeners();
         return true;
       } else {
@@ -95,6 +98,7 @@ class AuthProvider extends ChangeNotifier {
           },
         );
         debugPrint('Login successful, user: ${_currentUser?.email}');
+        
         notifyListeners();
         return true;
       } else {
@@ -162,8 +166,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    debugPrint('AuthProvider: Logging out user: ${_currentUser?.email}');
     await _authRepository.logout();
     await _socialAuthService.signOut();
+    
     _currentUser = null;
     notifyListeners();
   }

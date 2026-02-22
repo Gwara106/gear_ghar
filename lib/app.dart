@@ -16,7 +16,6 @@ import 'features/admin/presentation/screens/admin_create_user_screen.dart';
 import 'features/admin/presentation/screens/admin_edit_user_screen.dart';
 import 'features/user/presentation/screens/user_profile_screen.dart';
 import 'features/shop/presentation/screens/cart_screen.dart';
-import 'features/shop/presentation/screens/product_detail_screen.dart';
 import 'features/checkout/presentation/screens/simple_checkout_screen.dart';
 import 'core/models/api_user_model.dart';
 
@@ -28,24 +27,31 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final AuthProvider _authProvider = AuthProvider();
-
   @override
   void initState() {
     super.initState();
+    // Don't initialize here - wait for didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    debugPrint('App: didChangeDependencies called');
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
-    // Initialize auth in background without blocking UI
-    Future.microtask(() => _authProvider.initializeAuth());
+    debugPrint('App: _initializeApp called');
+    // Get auth provider and initialize in background without blocking UI
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    Future.microtask(() => authProvider.initializeAuth());
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: _authProvider),
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => ProductProvider()),
         ChangeNotifierProvider(create: (context) => CartProvider()),
         ChangeNotifierProvider(create: (context) => AddressProvider()),
