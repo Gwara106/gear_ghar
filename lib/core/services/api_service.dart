@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_constants.dart';
 
 class ApiService {
@@ -8,11 +9,27 @@ class ApiService {
   ApiService._internal();
 
   String? _token;
+  static const String _tokenKey = 'auth_token';
 
-  // Set authentication token
-  void setToken(String token) {
-    _token = token;
+  // Initialize and load token from storage
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString(_tokenKey);
   }
+
+  // Set authentication token and persist it
+  Future<void> setToken(String token) async {
+    _token = token;
+    final prefs = await SharedPreferences.getInstance();
+    if (token.isEmpty) {
+      await prefs.remove(_tokenKey);
+    } else {
+      await prefs.setString(_tokenKey, token);
+    }
+  }
+
+  // Get current token
+  String? getToken() => _token;
 
   // Get headers with authentication
   Map<String, String> _getHeaders() {

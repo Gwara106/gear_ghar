@@ -5,6 +5,9 @@ import '../constants/api_constants.dart';
 class AuthApiService {
   final ApiService _apiService = ApiService();
   
+  // Get current token
+  String? getToken() => _apiService.getToken();
+  
   // Register new user
   Future<Map<String, dynamic>> register({
     required String firstName,
@@ -32,7 +35,7 @@ class AuthApiService {
       
       // If registration returns a token, set it
       if (response['token'] != null) {
-        _apiService.setToken(response['token']);
+        await _apiService.setToken(response['token']);
       }
       
       return response;
@@ -54,7 +57,7 @@ class AuthApiService {
       
       // Set token if login successful
       if (response['token'] != null) {
-        _apiService.setToken(response['token']);
+        await _apiService.setToken(response['token']);
       }
       
       return response;
@@ -81,10 +84,10 @@ class AuthApiService {
   Future<void> logout() async {
     try {
       await _apiService.post(ApiConstants.logout, {});
-      _apiService.setToken('');
+      await _apiService.setToken('');
     } catch (e) {
       // Even if API call fails, clear local token
-      _apiService.setToken('');
+      await _apiService.setToken('');
     }
   }
   

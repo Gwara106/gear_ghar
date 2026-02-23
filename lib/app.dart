@@ -18,6 +18,7 @@ import 'features/user/presentation/screens/user_profile_screen.dart';
 import 'features/shop/presentation/screens/cart_screen.dart';
 import 'features/checkout/presentation/screens/simple_checkout_screen.dart';
 import 'core/models/api_user_model.dart';
+import 'core/services/api_service.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -42,9 +43,15 @@ class _AppState extends State<App> {
 
   Future<void> _initializeApp() async {
     debugPrint('App: _initializeApp called');
+    
+    // Initialize ApiService first to load token from storage
+    await ApiService().init();
+    
     // Get auth provider and initialize in background without blocking UI
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    Future.microtask(() => authProvider.initializeAuth());
+    if (mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      Future.microtask(() => authProvider.initializeAuth());
+    }
   }
 
   @override

@@ -59,8 +59,8 @@ class AuthApiDataSource {
   }
 
   bool checkLoginStatus() {
-    // For now, return false since we don't have persistent login state
-    // In a real implementation, you would check token storage or local storage
-    return false;
+    // Check if there's a stored token
+    final token = _authApiService.getToken();
+    return token != null && token.isNotEmpty;
   }
 }

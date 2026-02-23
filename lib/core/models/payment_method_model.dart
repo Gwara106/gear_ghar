@@ -127,11 +127,15 @@ class PaymentMethod {
   String get displayText {
     switch (type) {
       case 'card':
-        return '$cardType •••• $lastFour';
+        return '$cardType •••• ${lastFour ?? '----'}';
       case 'paypal':
-        return 'PayPal •••• ${paypalEmail?.substring(paypalEmail!.length - 4)}';
+        final email = paypalEmail;
+        if (email != null && email.length >= 4) {
+          return 'PayPal •••• ${email.substring(email.length - 4)}';
+        }
+        return 'PayPal •••• ----';
       case 'bank_account':
-        return '$bankName •••• $bankLastFour';
+        return '$bankName •••• ${bankLastFour ?? '----'}';
       default:
         return 'Unknown Payment Method';
     }
