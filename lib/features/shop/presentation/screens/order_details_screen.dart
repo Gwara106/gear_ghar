@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gear_ghar/shared/widgets/primary_app_bar.dart';
 import '../../../../core/models/order_model.dart';
 import '../../../../core/services/order_api_service.dart';
+import 'order_tracking_screen_simple.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final Order order;
@@ -89,10 +91,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         return 'Confirmed';
       case 'processing':
         return 'Processing';
+      case 'packed':
+        return 'Packed';
       case 'shipped':
         return 'Shipped';
       case 'delivered':
         return 'Delivered';
+      case 'received':
+        return 'Received';
       case 'cancelled':
         return 'Cancelled';
       case 'refunded':
@@ -110,10 +116,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         return Colors.blue;
       case 'processing':
         return Colors.purple;
-      case 'shipped':
+      case 'packed':
         return Colors.indigo;
+      case 'shipped':
+        return Colors.teal;
       case 'delivered':
         return Colors.green;
+      case 'received':
+        return Colors.lightGreen;
       case 'cancelled':
         return Colors.red;
       case 'refunded':
@@ -126,26 +136,56 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_order.orderNumber ?? 'Order Details'),
-        backgroundColor: Colors.white,
-        elevation: 0,
+      appBar: PrimaryAppBar(
+        title: _order.orderNumber ?? 'Order Details',
         actions: [
           if (_order.status == 'pending' || _order.status == 'confirmed')
-            TextButton.icon(
-              onPressed: _isLoading ? null : _cancelOrder,
-              icon: _isLoading 
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.cancel_outlined),
-              label: _isLoading ? const Text('Cancelling...') : const Text('Cancel Order'),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: TextButton.icon(
+                onPressed: _isLoading ? null : _cancelOrder,
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.cancel_outlined),
+                label: _isLoading
+                    ? const Text('Cancelling...')
+                    : const Text('Cancel'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
+          if (_order.status == 'shipped' ||
+              _order.status == 'delivered' ||
+              _order.status == 'packed')
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          OrderTrackingScreenSimple(orderId: _order.id ?? ''),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.location_on_outlined),
+                label: const Text('Track'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color,
+                ),
+              ),
             ),
         ],
       ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -191,9 +231,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     if (_order.createdAt != null)
                       Text('Order Date: ${_formatFullDate(_order.createdAt!)}'),
                     if (_order.estimatedDelivery != null)
-                      Text('Estimated Delivery: ${_formatFullDate(_order.estimatedDelivery!)}'),
+                      Text(
+                        'Estimated Delivery: ${_formatFullDate(_order.estimatedDelivery!)}',
+                      ),
                     if (_order.actualDelivery != null)
-                      Text('Delivered: ${_formatFullDate(_order.actualDelivery!)}'),
+                      Text(
+                        'Delivered: ${_formatFullDate(_order.actualDelivery!)}',
+                      ),
                   ],
                 ),
               ),
@@ -298,7 +342,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       const SizedBox(height: 16),
                       Text(_order.paymentMethodId ?? 'Loading...'),
                       const SizedBox(height: 8),
-                      Text('Payment Status: ${_order.paymentStatus ?? 'Unknown'}'),
+                      Text(
+                        'Payment Status: ${_order.paymentStatus ?? 'Unknown'}',
+                      ),
                     ],
                   ),
                 ),
@@ -307,7 +353,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             const SizedBox(height: 16),
 
             // Order Notes
-            if (_order.customerNotes != null && _order.customerNotes!.isNotEmpty)
+            if (_order.customerNotes != null &&
+                _order.customerNotes!.isNotEmpty)
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -361,7 +408,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 : const Icon(Icons.image, color: Colors.grey),
           ),
           const SizedBox(width: 12),
-          
+
           // Item Details
           Expanded(
             child: Column(
@@ -377,29 +424,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Quantity: ${item.quantity ?? 0}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
                 Text(
-                  'Price: \$${(item.price ?? 0).toStringAsFixed(2)}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
+                  'Price: Rs. ${(item.price ?? 0).toStringAsFixed(2)}',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
               ],
             ),
           ),
-          
+
           // Item Total
           Text(
-            '\$${(item.totalPrice ?? 0).toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            'Rs. ${(item.totalPrice ?? 0).toStringAsFixed(2)}',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ],
       ),
@@ -419,11 +457,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
           ),
           Text(
-            '\$${(amount ?? 0).toStringAsFixed(2)}',
+            'Rs. ${(amount ?? 0).toStringAsFixed(2)}',
             style: TextStyle(
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: (label == 'Discount' && amount != null && amount < 0) 
-                  ? Colors.green 
+              color: (label == 'Discount' && amount != null && amount < 0)
+                  ? Colors.green
                   : null,
             ),
           ),

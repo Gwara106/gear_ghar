@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:gear_ghar/shared/widgets/primary_app_bar.dart';
 import '../../../../providers/cart_provider.dart';
 
 class ProductDetailScreen extends StatelessWidget {
@@ -10,53 +11,8 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD0D0D0),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text('Product Details'),
-        actions: [
-          Consumer<CartProvider>(
-            builder: (context, cartProvider, child) {
-              return Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.shopping_cart, color: Colors.black),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/cart');
-                    },
-                  ),
-                  if (cartProvider.itemCount > 0)
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '${cartProvider.itemCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PrimaryAppBar(title: 'Product Details'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,13 +21,13 @@ class ProductDetailScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               height: 300,
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color,
               child: Image.asset(product['imageUrl'], fit: BoxFit.contain),
             ),
 
             // Product Info
             Container(
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,16 +35,22 @@ class ProductDetailScreen extends StatelessWidget {
                   // Category
                   Text(
                     product['category'],
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade400 
+                          : Colors.grey[600], 
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 8),
 
                   // Product Name
                   Text(
                     product['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -112,9 +74,11 @@ class ProductDetailScreen extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         '${product['rating']} (${(product['rating'] * 12).toInt()} reviews)',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.grey.shade400 
+                              : Colors.grey,
                         ),
                       ),
                     ],
@@ -124,10 +88,10 @@ class ProductDetailScreen extends StatelessWidget {
                   // Price
                   Text(
                     product['price'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -139,7 +103,7 @@ class ProductDetailScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.green),
                     ),
@@ -170,22 +134,28 @@ class ProductDetailScreen extends StatelessWidget {
 
             // Description
             Container(
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Description',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF272727),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     _getProductDescription(product),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       height: 1.5,
-                      color: Colors.black87,
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade300 
+                          : Colors.black87,
                     ),
                   ),
                 ],
@@ -196,14 +166,18 @@ class ProductDetailScreen extends StatelessWidget {
 
             // Product Details
             Container(
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Product Details',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF272727),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   _buildDetailRow('Category', product['category']),
@@ -219,14 +193,18 @@ class ProductDetailScreen extends StatelessWidget {
 
             // Reviews Section
             Container(
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Customer Reviews',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF272727),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ...List.generate(3, (index) => _buildReviewItem(index)),
@@ -236,7 +214,14 @@ class ProductDetailScreen extends StatelessWidget {
                       onPressed: () {
                         // Show all reviews
                       },
-                      child: const Text('View All Reviews'),
+                      child: Text(
+                        'View All Reviews',
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.white 
+                              : Colors.blue,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -250,7 +235,7 @@ class ProductDetailScreen extends StatelessWidget {
 
       // Bottom Action Buttons
       bottomNavigationBar: Container(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         padding: const EdgeInsets.all(16),
         child: Consumer<CartProvider>(
           builder: (context, cartProvider, child) {
@@ -269,14 +254,20 @@ class ProductDetailScreen extends StatelessWidget {
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Colors.black),
+                      side: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.white 
+                            : Colors.black,
+                      ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Add to Cart',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.white 
+                            : Colors.black,
                       ),
                     ),
                   ),
@@ -289,7 +280,9 @@ class ProductDetailScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/cart');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFF2A2A2A)
+                          : Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: const Text(

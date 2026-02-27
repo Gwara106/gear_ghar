@@ -15,7 +15,8 @@ class _AddressesScreenSimpleState extends State<AddressesScreenSimple> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Addresses'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
       ),
       body: Consumer<AddressProvider>(
@@ -144,12 +145,22 @@ class _AddressesScreenSimpleState extends State<AddressesScreenSimple> {
             const SizedBox(height: 12),
             Text(
               address.fullAddress,
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 14, 
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.grey.shade300 
+                    : Colors.black87,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Phone: ${address.phone}',
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 14, 
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.grey.shade300 
+                    : Colors.black87,
+              ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -157,7 +168,14 @@ class _AddressesScreenSimpleState extends State<AddressesScreenSimple> {
               children: [
                 TextButton(
                   onPressed: () => _showEditAddressDialog(address, addressProvider),
-                  child: const Text('Edit'),
+                  child: Text(
+                    'Edit',
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.white 
+                          : Colors.blue,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 TextButton(
@@ -172,13 +190,20 @@ class _AddressesScreenSimpleState extends State<AddressesScreenSimple> {
                   ElevatedButton(
                     onPressed: () async {
                       await addressProvider.setDefaultAddress(address.id!);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Default address updated'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Default address updated'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFF2A2A2A)
+                          : Colors.black,
+                    ),
                     child: const Text('Set as Default'),
                   ),
                 ],
@@ -257,7 +282,9 @@ class _AddressesScreenSimpleState extends State<AddressesScreenSimple> {
                   phone: phoneController.text,
                 );
                 await addressProvider.addAddress(newAddress);
-                Navigator.pop(context);
+                if (mounted) {
+                  Navigator.pop(context);
+                }
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
@@ -337,7 +364,9 @@ class _AddressesScreenSimpleState extends State<AddressesScreenSimple> {
                   isDefault: address.isDefault,
                 );
                 await addressProvider.updateAddress(updatedAddress);
-                Navigator.pop(context);
+                if (mounted) {
+                  Navigator.pop(context);
+                }
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),

@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/cart_provider.dart';
 import '../../../../providers/address_provider.dart';
+import '../../../../core/services/order_api_service.dart';
+import '../../../../core/models/order_model.dart';
+import '../../../../shared/providers/auth_provider.dart';
+
+const double _kCheckoutTaxRate = 0.13;
+const double _kCheckoutDeliveryFee = 50.0;
 
 class SimpleCheckoutScreen extends StatefulWidget {
   const SimpleCheckoutScreen({super.key});
@@ -14,6 +20,7 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
   String? _selectedAddressId;
   int _selectedPaymentMethod = 0;
   bool _isProcessing = false;
+  final OrderApiService _orderService = OrderApiService();
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +34,7 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
       body: Consumer2<CartProvider, AddressProvider>(
         builder: (context, cartProvider, addressProvider, child) {
           if (cartProvider.cartItems.isEmpty) {
-            return const Center(
-              child: Text('Your cart is empty'),
-            );
+            return const Center(child: Text('Your cart is empty'));
           }
 
           // Show loading if address provider is not initialized
@@ -47,15 +52,16 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
           }
 
           final addresses = addressProvider.addresses;
-          
+
           // Set default selected address if not set
           if (_selectedAddressId == null && addresses.isNotEmpty) {
-            _selectedAddressId = addressProvider.defaultAddress?.id ?? addresses.first.id;
+            _selectedAddressId =
+                addressProvider.defaultAddress?.id ?? addresses.first.id;
           }
 
           final subtotal = cartProvider.totalPrice;
-          final deliveryFee = 50.0;
-          final tax = subtotal * 0.13;
+          final deliveryFee = _kCheckoutDeliveryFee;
+          final tax = subtotal * _kCheckoutTaxRate;
           final total = subtotal + deliveryFee + tax;
 
           return SingleChildScrollView(
@@ -75,14 +81,28 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
 
                 // Order Summary Section
                 _buildSectionHeader('Order Summary'),
-                _buildOrderSummary(cartProvider, subtotal, deliveryFee, tax, total),
+                _buildOrderSummary(
+                  cartProvider,
+                  subtotal,
+                  deliveryFee,
+                  tax,
+                  total,
+                ),
                 const SizedBox(height: 20),
 
                 // Place Order Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (_selectedAddressId == null || _isProcessing) ? null : () => _placeOrder(context, total),
+                    onPressed: (_selectedAddressId == null || _isProcessing)
+                        ? null
+                        : () => _placeOrder(
+                            context,
+                            subtotal: subtotal,
+                            deliveryFee: deliveryFee,
+                            tax: tax,
+                            total: total,
+                          ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -112,17 +132,14 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }
 
   Widget _buildAddressSection(AddressProvider addressProvider) {
     final addresses = addressProvider.addresses;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -170,7 +187,9 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
                         color: isSelected ? Colors.black : Colors.grey.shade300,
                       ),
                       borderRadius: BorderRadius.circular(8),
-                      color: isSelected ? Colors.black.withOpacity(0.05) : Colors.transparent,
+                      color: isSelected
+                          ? Colors.black.withValues(alpha: 0.05)
+                          : Colors.transparent,
                     ),
                     child: Row(
                       children: [
@@ -202,9 +221,12 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
                         ),
                         if (address.isDefault)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: Colors.green),
                             ),
@@ -270,7 +292,12 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
     );
   }
 
-  Widget _buildPaymentOption(int value, IconData icon, String title, String subtitle) {
+  Widget _buildPaymentOption(
+    int value,
+    IconData icon,
+    String title,
+    String subtitle,
+  ) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -287,7 +314,7 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
           ),
           borderRadius: BorderRadius.circular(8),
           color: _selectedPaymentMethod == value
-              ? Colors.black.withOpacity(0.05)
+              ? Colors.black.withValues(alpha: 0.05)
               : Colors.transparent,
         ),
         child: Row(
@@ -309,16 +336,11 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                 ],
               ),
@@ -329,7 +351,13 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
     );
   }
 
-  Widget _buildOrderSummary(CartProvider cartProvider, double subtotal, double deliveryFee, double tax, double total) {
+  Widget _buildOrderSummary(
+    CartProvider cartProvider,
+    double subtotal,
+    double deliveryFee,
+    double tax,
+    double total,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -340,7 +368,9 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
         children: [
           // Cart Items Summary
           ...List.generate(
-            cartProvider.cartItems.length > 2 ? 2 : cartProvider.cartItems.length,
+            cartProvider.cartItems.length > 2
+                ? 2
+                : cartProvider.cartItems.length,
             (index) {
               final item = cartProvider.cartItems[index];
               return Padding(
@@ -369,10 +399,7 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
                 '+${cartProvider.cartItems.length - 2} more items',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ),
           const Divider(),
@@ -479,88 +506,214 @@ class _SimpleCheckoutScreenState extends State<SimpleCheckoutScreen> {
                   phone: phoneController.text,
                 );
                 await addressProvider.addAddress(newAddress);
-                
+
                 // Set the newly added address as selected
                 setState(() {
                   _selectedAddressId = newAddress.id;
                 });
-                
-                Navigator.pop(context);
+
+                if (mounted) {
+                  Navigator.pop(context);
+                }
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-            child: const Text('Add Address', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Add Address',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _placeOrder(BuildContext context, double total) async {
+  void _placeOrder(
+    BuildContext context, {
+    required double subtotal,
+    required double deliveryFee,
+    required double tax,
+    required double total,
+  }) async {
     setState(() {
       _isProcessing = true;
     });
 
-    // Simulate order processing
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      final addressProvider = Provider.of<AddressProvider>(
+        context,
+        listen: false,
+      );
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    setState(() {
-      _isProcessing = false;
-    });
+      // Get selected address
+      final selectedAddress = addressProvider.addresses.firstWhere(
+        (addr) => addr.id == _selectedAddressId,
+        orElse: () => addressProvider.addresses.first,
+      );
 
-    // Clear cart
-    Provider.of<CartProvider>(context, listen: false).clearCart();
+      debugPrint('Selected address: ${selectedAddress.toJson()}');
 
-    // Show success dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Order Placed Successfully!'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 64,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Your order has been placed successfully.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Order ID: #${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Total Amount: Rs. ${total.toStringAsFixed(2)}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            if (_selectedPaymentMethod == 1)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'Please pay cash when you receive your order.',
-                  style: TextStyle(color: Colors.orange),
-                ),
+      // Create order items from cart - use hardcoded IDs for now since cart has old data
+      final orderItems = cartProvider.cartItems.map((cartItem) {
+        debugPrint('Cart item structure: ${cartItem.product}');
+        debugPrint('Cart item keys: ${cartItem.product.keys.toList()}');
+
+        // Get the product ID directly from the cart item
+        final productId = cartItem.product['id']?.toString() ?? '';
+        debugPrint('Product ID from cart: $productId');
+
+        final price =
+            double.tryParse(
+              cartItem.product['price']
+                      ?.toString()
+                      .replaceAll('Rs. ', '')
+                      .replaceAll(',', '') ??
+                  '0',
+            ) ??
+            0;
+
+        return OrderItem(
+          itemId: productId,
+          quantity: cartItem.quantity,
+          price: price,
+          totalPrice: price * cartItem.quantity,
+        );
+      }).toList();
+
+      // Create order object
+      debugPrint('Creating order with userId: ${authProvider.currentUser?.id}');
+      debugPrint('Order items: ${orderItems.length}');
+      debugPrint('Selected address ID: ${selectedAddress.id}');
+
+      // Use the same totals shown to the user during checkout.
+      final shipping = deliveryFee;
+
+      final order = Order(
+        user: authProvider.currentUser?.id,
+        items: orderItems,
+        subtotal: subtotal,
+        tax: tax,
+        shipping: shipping,
+        discount: 0,
+        total: total,
+        shippingAddress: {
+          '_id': selectedAddress.id, // Convert to ObjectId format
+          'name': selectedAddress.name,
+          'streetAddress': selectedAddress.street,
+          'city': selectedAddress.city,
+          'phone': selectedAddress.phone, // Use phone instead of postalCode
+          'isDefault': selectedAddress.isDefault,
+        },
+        billingAddress: {
+          '_id': selectedAddress.id, // Convert to ObjectId format
+          'name': selectedAddress.name,
+          'streetAddress': selectedAddress.street,
+          'city': selectedAddress.city,
+          'phone': selectedAddress.phone, // Use phone instead of postalCode
+          'isDefault': selectedAddress.isDefault,
+        },
+        customerNotes: 'Order placed from mobile app',
+        isGift: false,
+        paymentMethodId: 'default', // Add required paymentMethod field
+      );
+
+      debugPrint('Order data: ${order.toJson()}');
+
+      // Create order in database
+      debugPrint('Sending order to backend...');
+      final createdOrder = await _orderService.createOrder(order);
+      debugPrint('Order creation response: $createdOrder');
+
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+
+        // Clear cart
+        cartProvider.clearCart();
+
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Order Placed Successfully!'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 64),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Your order has been placed successfully.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Order ID: ${createdOrder.orderNumber ?? createdOrder.id?.substring(0, 8) ?? 'N/A'}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Total Amount: Rs. ${total.toStringAsFixed(2)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  if (_selectedPaymentMethod == 1)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Please pay cash when you receive your order.',
+                        style: TextStyle(color: Colors.orange),
+                      ),
+                    ),
+                ],
               ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.popUntil(context, (route) => route.isFirst); // Go to home
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-            child: const Text('Continue Shopping', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/orders',
+                      (route) => false,
+                    ); // Go to orders screen
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                  ),
+                  child: const Text(
+                    'View Orders',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Order Failed'),
+              content: Text('Failed to place order: $e'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    }
   }
 }

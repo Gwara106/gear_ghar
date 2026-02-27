@@ -68,10 +68,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     debugPrint('ProfileScreen: User profile picture: ${authProvider.currentUser?.profilePicture}');
     
     return Scaffold(
-      backgroundColor: const Color(0xFFD0D0D0),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('My Profile'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -81,23 +82,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color,
               child: Column(
                 children: [
                   CircleAvatar(
                     radius: 50,
                     backgroundImage: _buildProfileImage(authProvider.currentUser?.profilePicture),
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey.shade700 
+                        : Colors.grey.shade200,
                   ),
                   const SizedBox(height: 10),
                   Text(
                     authProvider.currentUser?.fullName ?? 'Guest User',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 22, 
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     authProvider.currentUser?.email ?? 'No email',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade400 
+                          : Colors.grey.shade600, 
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
@@ -110,7 +122,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFF2A2A2A)
+                          : Colors.black,
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -215,19 +230,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool isLogout = false,
   }) {
     return Card(
+      color: Theme.of(context).cardTheme.color,
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Colors.grey.shade800 
+              : Colors.grey.shade200,
+        ),
+      ),
       child: ListTile(
-        leading: Icon(icon, color: isLogout ? Colors.red : Colors.black),
+        leading: Icon(
+          icon, 
+          color: isLogout 
+              ? Colors.red 
+              : Theme.of(context).brightness == Brightness.dark 
+                  ? Colors.white 
+                  : Colors.black,
+        ),
         title: Text(
           title,
           style: TextStyle(
-            color: isLogout ? Colors.red : Colors.black,
+            color: isLogout 
+                ? Colors.red 
+                : Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.white 
+                    : Colors.black,
             fontWeight: FontWeight.w500,
           ),
         ),
         trailing: isLogout
             ? null
-            : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            : Icon(
+                Icons.arrow_forward_ios, 
+                size: 16, 
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.grey.shade400 
+                    : Colors.grey,
+              ),
         onTap: onTap,
       ),
     );
@@ -238,22 +279,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          backgroundColor: Theme.of(context).dialogTheme.backgroundColor,
+          title: Text(
+            'Logout',
+            style: TextStyle(
+              color: Theme.of(context).dialogTheme.titleTextStyle?.color,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(
+              color: Theme.of(context).dialogTheme.contentTextStyle?.color,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark 
+                      ? Colors.white 
+                      : Colors.black,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Use AuthProvider to logout
-                Provider.of<AuthProvider>(context, listen: false).logout();
-                // Navigate to login screen and clear navigation stack
+                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                authProvider.logout();
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                   (Route<dynamic> route) => false,
                 );
               },

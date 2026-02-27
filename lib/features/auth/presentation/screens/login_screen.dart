@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             Text(
                               AppStrings.rememberMe,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: 'Jersey25',
                                 fontSize: 20,
                                 color: Colors.black,

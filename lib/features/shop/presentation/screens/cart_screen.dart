@@ -8,9 +8,10 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD0D0D0),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         title: const Text('Shopping Cart'),
       ),
@@ -24,14 +25,18 @@ class CartScreen extends StatelessWidget {
                   Icon(
                     Icons.shopping_cart_outlined,
                     size: 100,
-                    color: Colors.grey[400],
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey.shade600 
+                        : Colors.grey[400],
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Your cart is empty',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.grey[600],
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade300 
+                          : Colors.grey[600],
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -40,7 +45,9 @@ class CartScreen extends StatelessWidget {
                     'Add some products to get started!',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[500],
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade500 
+                          : Colors.grey[500],
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -129,7 +136,6 @@ class CartScreen extends StatelessWidget {
     final product = cartItem.product;
     final priceString = product['price'].toString().replaceAll('Rs. ', '').replaceAll(',', '');
     final price = double.tryParse(priceString) ?? 0.0;
-    final itemTotal = price * cartItem.quantity;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

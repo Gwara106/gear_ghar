@@ -130,9 +130,16 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(widget.address == null ? 'Add Address' : 'Edit Address'),
-        backgroundColor: Colors.white,
+        title: Text(
+          widget.address == null ? 'Add Address' : 'Edit Address',
+          style: TextStyle(
+            color: Theme.of(context).appBarTheme.foregroundColor,
+          ),
+        ),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
       ),
       body: Padding(
@@ -143,17 +150,66 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardTheme.color,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade800 
+                          : Colors.grey.shade200,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                 // Address Name
                 DropdownButtonFormField<String>(
                   initialValue: _selectedName,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Address Type',
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.grey.shade700 
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'Home', child: Text('Home')),
-                    DropdownMenuItem(value: 'Work', child: Text('Work')),
-                    DropdownMenuItem(value: 'Other', child: Text('Other')),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'Home', 
+                      child: Text(
+                        'Home',
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Work', 
+                      child: Text(
+                        'Work',
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Other', 
+                      child: Text(
+                        'Other',
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -167,9 +223,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                 if (_selectedName == 'Other') ...[
                   TextFormField(
                     controller: _customNameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Custom Name',
-                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(
+                        color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.grey.shade700 
+                              : Colors.grey.shade300,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                     ),
                     validator: (value) {
                       if (_selectedName == 'Other' && (value == null || value.isEmpty)) {
@@ -184,9 +251,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                 // Street Address
                 TextFormField(
                   controller: _streetController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Street Address',
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.grey.shade700 
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -200,9 +278,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                 // Apartment (Optional)
                 TextFormField(
                   controller: _apartmentController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Apartment, Suite, etc. (Optional)',
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.grey.shade700 
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -213,9 +302,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _cityController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'City',
-                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).brightness == Brightness.dark 
+                                  ? Colors.grey.shade700 
+                                  : Colors.grey.shade300,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -229,9 +329,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _stateController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'State',
-                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).brightness == Brightness.dark 
+                                  ? Colors.grey.shade700 
+                                  : Colors.grey.shade300,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -251,9 +362,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _postalController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Postal Code',
-                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).brightness == Brightness.dark 
+                                  ? Colors.grey.shade700 
+                                  : Colors.grey.shade300,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -267,9 +389,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _countryController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Country',
-                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).brightness == Brightness.dark 
+                                  ? Colors.grey.shade700 
+                                  : Colors.grey.shade300,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -286,9 +419,20 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                 // Phone Number
                 TextFormField(
                   controller: _phoneController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Phone Number',
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.grey.shade700 
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                   ),
                   keyboardType: TextInputType.phone,
                   validator: (value) {
@@ -303,10 +447,26 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                 // Delivery Instructions (Optional)
                 TextFormField(
                   controller: _deliveryInstructionsController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Delivery Instructions (Optional)',
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.grey.shade700 
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                     hintText: 'e.g., Ring doorbell, leave at back door',
+                    hintStyle: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade400 
+                          : Colors.grey.shade600,
+                    ),
                   ),
                   maxLines: 3,
                 ),
@@ -318,9 +478,25 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _saveAddress,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFF2A2A2A)
+                          : Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(widget.address == null ? 'Add Address' : 'Update Address'),
+                        : Text(
+                            widget.address == null ? 'Add Address' : 'Update Address',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                ),
+                    ],
                   ),
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'api_service.dart';
 import '../models/order_model.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 class OrderApiService {
   static final OrderApiService _instance = OrderApiService._internal();
@@ -10,8 +11,10 @@ class OrderApiService {
 
   Future<List<Order>> getOrders({int page = 1, int limit = 10}) async {
     try {
-      final response = await _apiService.get('/api/orders?page=$page&limit=$limit');
-      
+      final response = await _apiService.get(
+        '/api/orders?page=$page&limit=$limit',
+      );
+
       if (response['success'] == true && response['data'] != null) {
         final List<dynamic> ordersJson = response['data'];
         return ordersJson.map((json) => Order.fromJson(json)).toList();
@@ -25,7 +28,7 @@ class OrderApiService {
   Future<Order?> getOrder(String id) async {
     try {
       final response = await _apiService.get('/api/orders/$id');
-      
+
       if (response['success'] == true && response['data'] != null) {
         return Order.fromJson(response['data']);
       }
@@ -37,24 +40,34 @@ class OrderApiService {
 
   Future<Order> createOrder(Order order) async {
     try {
-      final response = await _apiService.post('/api/orders', order.toJson());
-      
+      final orderData = order.toJson();
+      debugPrint('OrderService: Creating order with data: $orderData');
+      debugPrint('OrderService: Sending to endpoint: /api/orders');
+
+      final response = await _apiService.post('/api/orders', orderData);
+      debugPrint('OrderService: Response received: $response');
+
       if (response['success'] == true && response['data'] != null) {
         return Order.fromJson(response['data']);
       }
       throw Exception('Failed to create order');
     } catch (e) {
+      debugPrint('OrderService: Exception caught: $e');
       throw Exception('Failed to create order: $e');
     }
   }
 
-  Future<Order> updateOrderStatus(String id, String status, {String? note}) async {
+  Future<Order> updateOrderStatus(
+    String id,
+    String status, {
+    String? note,
+  }) async {
     try {
       final response = await _apiService.put('/api/orders/$id/status', {
         'status': status,
         if (note != null) 'note': note,
       });
-      
+
       if (response['success'] == true && response['data'] != null) {
         return Order.fromJson(response['data']);
       }
@@ -69,7 +82,7 @@ class OrderApiService {
       final response = await _apiService.put('/api/orders/$id/cancel', {
         if (reason != null) 'reason': reason,
       });
-      
+
       if (response['success'] == true && response['data'] != null) {
         return Order.fromJson(response['data']);
       }
@@ -79,13 +92,27 @@ class OrderApiService {
     }
   }
 
+  Future<void> deleteOrder(String id) async {
+    try {
+      final response = await _apiService.delete('/api/orders/$id');
+
+      // Some backends return { success: true }, others return the deleted record.
+      if (response is Map && response['success'] == true) return;
+      return;
+    } catch (e) {
+      throw Exception('Failed to delete order: $e');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getOrderStats() async {
     try {
       final response = await _apiService.get('/api/orders/stats');
-      
+
       if (response['success'] == true && response['data'] != null) {
         final List<dynamic> statsJson = response['data'];
-        return statsJson.map((json) => Map<String, dynamic>.from(json)).toList();
+        return statsJson
+            .map((json) => Map<String, dynamic>.from(json))
+            .toList();
       }
       return [];
     } catch (e) {
@@ -96,7 +123,7 @@ class OrderApiService {
   Future<Map<String, dynamic>?> trackOrder(String id) async {
     try {
       final response = await _apiService.get('/api/orders/$id/track');
-      
+
       if (response['success'] == true && response['data'] != null) {
         return Map<String, dynamic>.from(response['data']);
       }

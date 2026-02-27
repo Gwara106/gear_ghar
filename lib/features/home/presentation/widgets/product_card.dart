@@ -33,11 +33,18 @@ class ProductCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark 
+                ? Colors.grey.shade800 
+                : Colors.grey.shade200,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.15),
+              color: Theme.of(context).brightness == Brightness.dark 
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : Colors.grey.withValues(alpha: 0.15),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -58,7 +65,9 @@ class ProductCard extends StatelessWidget {
                   child: Stack(
                     children: [
                       Container(
-                        color: Colors.grey[200],
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.grey.shade800 
+                            : Colors.grey[200],
                         child: Image.asset(
                           imageUrl,
                           fit: BoxFit.cover,
@@ -74,12 +83,18 @@ class ProductCard extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: Theme.of(context).brightness == Brightness.dark 
+                                  ? Colors.black.withValues(alpha: 0.8)
+                                  : Colors.white.withValues(alpha: 0.8),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               isFavorite ? Icons.favorite : Icons.favorite_border,
-                              color: isFavorite ? Colors.red : Colors.black54,
+                              color: isFavorite 
+                                  ? Colors.red 
+                                  : Theme.of(context).brightness == Brightness.dark 
+                                      ? Colors.white 
+                                      : Colors.black54,
                               size: 20,
                             ),
                           ),
@@ -102,7 +117,9 @@ class ProductCard extends StatelessWidget {
                       Text(
                         category,
                         style: TextStyle(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.grey.shade400 
+                              : Colors.grey[600],
                           fontSize: isTablet ? 13 : 12,
                         ),
                         maxLines: 1,
@@ -114,6 +131,7 @@ class ProductCard extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: isTablet ? 15 : 14,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -127,6 +145,7 @@ class ProductCard extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: isTablet ? 16 : 15,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
                             ),
                           ),
                           Row(
@@ -138,6 +157,7 @@ class ProductCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: isTablet ? 14 : 13,
                                   fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).textTheme.bodyLarge?.color,
                                 ),
                               ),
                             ],

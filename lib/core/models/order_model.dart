@@ -2,6 +2,7 @@ class Order {
   final String? id;
   final String? orderNumber;
   final String? userId;
+  final String? user; // Add user field
   final List<OrderItem>? items;
   final double? subtotal;
   final double? tax;
@@ -28,11 +29,15 @@ class Order {
   final bool? giftWrap;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final Map<String, dynamic>? shippingAddress; // Add shippingAddress field
+  final Map<String, dynamic>? billingAddress; // Add billingAddress field
+  final OrderStatus? currentStatus; // Add currentStatus field
 
   Order({
     this.id,
     this.orderNumber,
     this.userId,
+    this.user, // Add user parameter
     this.items,
     this.subtotal,
     this.tax,
@@ -59,6 +64,9 @@ class Order {
     this.giftWrap,
     this.createdAt,
     this.updatedAt,
+    this.shippingAddress, // Add shippingAddress parameter
+    this.billingAddress, // Add billingAddress parameter
+    this.currentStatus, // Add currentStatus parameter
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -76,9 +84,9 @@ class Order {
       total: (json['total'] as num?)?.toDouble(),
       currency: json['currency']?.toString(),
       status: json['status']?.toString(),
-      statusHistory: json['statusHistory'] != null
+      statusHistory: json['statusHistory'] != null && (json['statusHistory'] as List).isNotEmpty
           ? (json['statusHistory'] as List).map((status) => OrderStatus.fromJson(status)).toList()
-          : null,
+          : [],
       shippingAddressId: json['shippingAddress']?.toString(),
       billingAddressId: json['billingAddress']?.toString(),
       paymentMethodId: json['paymentMethod']?.toString(),
@@ -98,6 +106,9 @@ class Order {
       isGift: json['isGift'] as bool?,
       giftMessage: json['giftMessage']?.toString(),
       giftWrap: json['giftWrap'] as bool?,
+      currentStatus: json['currentStatus'] != null 
+          ? OrderStatus.fromJson(json['currentStatus'])
+          : null,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
@@ -111,7 +122,8 @@ class Order {
     return {
       if (id != null) '_id': id,
       if (orderNumber != null) 'orderNumber': orderNumber,
-      if (userId != null) 'user': userId,
+      if (userId != null) 'user': userId, // Keep userId for backward compatibility
+      if (user != null) 'user': user, // Add user field
       if (items != null) 'items': items!.map((item) => item.toJson()).toList(),
       if (subtotal != null) 'subtotal': subtotal,
       if (tax != null) 'tax': tax,
@@ -121,9 +133,9 @@ class Order {
       if (currency != null) 'currency': currency,
       if (status != null) 'status': status,
       if (statusHistory != null) 'statusHistory': statusHistory!.map((status) => status.toJson()).toList(),
-      if (shippingAddressId != null) 'shippingAddress': shippingAddressId,
-      if (billingAddressId != null) 'billingAddress': billingAddressId,
-      if (paymentMethodId != null) 'paymentMethod': paymentMethodId,
+      if (shippingAddress != null) 'shippingAddress': shippingAddress, // Send actual address object
+      if (billingAddress != null) 'billingAddress': billingAddress, // Send actual address object
+      if (paymentMethodId != null) 'paymentMethod': paymentMethodId, // Backend expects paymentMethod
       if (paymentStatus != null) 'paymentStatus': paymentStatus,
       if (paymentId != null) 'paymentId': paymentId,
       if (trackingNumber != null) 'trackingNumber': trackingNumber,
@@ -145,19 +157,8 @@ class Order {
   }
 
   String get formattedTotal {
-    if (total == null) return '\$0.00';
-    return '\$${total!.toStringAsFixed(2)}';
-  }
-
-  OrderStatus? get currentStatus {
-    if (statusHistory == null || statusHistory!.isEmpty) {
-      return OrderStatus(
-        status: status ?? 'pending',
-        timestamp: createdAt ?? DateTime.now(),
-        note: 'Order created',
-      );
-    }
-    return statusHistory!.last;
+    final amount = total ?? 0;
+    return 'Rs. ${amount.toStringAsFixed(2)}';
   }
 
   @override
@@ -168,6 +169,46 @@ class Order {
 
   @override
   int get hashCode => id.hashCode;
+
+  Order copyWith({
+    String? status,
+  }) {
+    return Order(
+      id: id,
+      orderNumber: orderNumber,
+      userId: userId,
+      user: user,
+      items: items,
+      subtotal: subtotal,
+      tax: tax,
+      shipping: shipping,
+      discount: discount,
+      total: total,
+      currency: currency,
+      status: status ?? this.status, // Use new status or keep existing
+      statusHistory: statusHistory,
+      shippingAddressId: shippingAddressId,
+      billingAddressId: billingAddressId,
+      paymentMethodId: paymentMethodId,
+      paymentStatus: paymentStatus,
+      paymentId: paymentId,
+      trackingNumber: trackingNumber,
+      carrier: carrier,
+      estimatedDelivery: estimatedDelivery,
+      actualDelivery: actualDelivery,
+      notes: notes,
+      customerNotes: customerNotes,
+      promoCode: promoCode,
+      isGift: isGift,
+      giftMessage: giftMessage,
+      giftWrap: giftWrap,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      shippingAddress: shippingAddress,
+      billingAddress: billingAddress,
+      currentStatus: currentStatus,
+    );
+  }
 
   @override
   String toString() {
@@ -182,6 +223,7 @@ class OrderItem {
   final double? totalPrice;
   final String? itemName;
   final List<String>? itemImages;
+  final Map<String, dynamic>? item; // Add item field to hold product data
 
   OrderItem({
     this.itemId,
@@ -190,6 +232,7 @@ class OrderItem {
     this.totalPrice,
     this.itemName,
     this.itemImages,
+    this.item, // Add item to constructor
   });
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
@@ -198,21 +241,25 @@ class OrderItem {
       quantity: json['quantity'] as int?,
       price: (json['price'] as num?)?.toDouble(),
       totalPrice: (json['totalPrice'] as num?)?.toDouble(),
-      itemName: json['item']?['name']?.toString() ?? json['itemName']?.toString(),
-      itemImages: json['item']?['images'] != null
-          ? (json['item']['images'] as List).map((img) => img.toString()).toList()
-          : json['itemImages'] != null
-              ? (json['itemImages'] as List).map((img) => img.toString()).toList()
+      itemName: json['itemName']?.toString() ?? json['item']?['name']?.toString(),
+      itemImages: json['itemImages'] != null
+          ? (json['itemImages'] as List).map((img) => img.toString()).toList()
+          : json['item']?['images'] != null
+              ? (json['item']['images'] as List).map((img) => img.toString()).toList()
               : null,
+      item: json['item'] is Map ? json['item'] as Map<String, dynamic> : null, // Handle item as Map or null
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      if (itemId != null) 'item': itemId,
+      if (itemId != null) 'item': itemId, // Send itemId as 'item' field (product ID)
       if (quantity != null) 'quantity': quantity,
       if (price != null) 'price': price,
       if (totalPrice != null) 'totalPrice': totalPrice,
+      if (itemName != null) 'itemName': itemName,
+      if (itemImages != null) 'itemImages': itemImages,
+      // if (item != null) 'item': item, // Remove full item object
     };
   }
 

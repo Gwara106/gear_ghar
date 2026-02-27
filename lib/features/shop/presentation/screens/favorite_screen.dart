@@ -15,10 +15,11 @@ class FavoriteScreen extends StatelessWidget {
     final favoriteProducts = productProvider.favoriteProducts;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFD0D0D0),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Favorites'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         actions: [
           Consumer<CartProvider>(
@@ -26,7 +27,10 @@ class FavoriteScreen extends StatelessWidget {
               return Stack(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.shopping_cart, color: Colors.black),
+                    icon: Icon(
+                      Icons.shopping_cart, 
+                      color: Theme.of(context).appBarTheme.foregroundColor,
+                    ),
                     onPressed: () {
                       Navigator.pushNamed(context, '/cart');
                     },
@@ -63,8 +67,13 @@ class FavoriteScreen extends StatelessWidget {
         ],
       ),
       body: favoriteProducts.isEmpty
-          ? const Center(
-              child: Text('No favorite items yet!'),
+          ? Center(
+              child: Text(
+                'No favorite items yet!',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
             )
           : GridView.builder(
               padding: const EdgeInsets.all(8.0),

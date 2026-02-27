@@ -103,7 +103,7 @@ class ApiService {
   Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
     try {
       final response = await http.put(
-        Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+        Uri.parse('${ApiConstants.getBaseUrl()}$endpoint'),
         headers: _getHeaders(),
         body: jsonEncode(data),
       );
@@ -117,7 +117,7 @@ class ApiService {
   Future<dynamic> delete(String endpoint) async {
     try {
       final response = await http.delete(
-        Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+        Uri.parse('${ApiConstants.getBaseUrl()}$endpoint'),
         headers: _getHeaders(),
       );
       return _handleResponse(response);

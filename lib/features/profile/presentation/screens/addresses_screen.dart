@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gear_ghar/shared/widgets/primary_app_bar.dart';
 import '../../../../core/models/address_model.dart';
 import '../../../../core/services/address_api_service.dart';
 import 'add_edit_address_screen.dart';
@@ -93,72 +94,68 @@ class _AddressesScreenState extends State<AddressesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Addresses'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: PrimaryAppBar(title: 'My Addresses'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Error loading addresses',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(_error!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadAddresses,
-                        child: const Text('Retry'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Error loading addresses',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                )
-              : _addresses.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No addresses yet',
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('Add your first address to get started'),
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () => _navigateToAddEditAddress(),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add Address'),
-                          ),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _loadAddresses,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: _addresses.length,
-                        itemBuilder: (context, index) {
-                          final address = _addresses[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: _buildAddressCard(context, address),
-                          );
-                        },
-                      ),
-                    ),
+                  const SizedBox(height: 8),
+                  Text(_error!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadAddresses,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : _addresses.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No addresses yet',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text('Add your first address to get started'),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => _navigateToAddEditAddress(),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Address'),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadAddresses,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _addresses.length,
+                itemBuilder: (context, index) {
+                  final address = _addresses[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: _buildAddressCard(context, address),
+                  );
+                },
+              ),
+            ),
       floatingActionButton: _addresses.isNotEmpty
           ? FloatingActionButton(
               onPressed: () => _navigateToAddEditAddress(),
@@ -202,7 +199,9 @@ class _AddressesScreenState extends State<AddressesScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -219,12 +218,16 @@ class _AddressesScreenState extends State<AddressesScreen> {
             const SizedBox(height: 12),
             Text(
               address.fullAddress,
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              style: const TextStyle(
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Phone: ${address.phoneNumber ?? "N/A"}',
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              style: const TextStyle(
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -232,20 +235,43 @@ class _AddressesScreenState extends State<AddressesScreen> {
               children: [
                 TextButton(
                   onPressed: () => _navigateToAddEditAddress(address: address),
-                  child: const Text('Edit'),
+                  child: Text(
+                    'Edit',
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.white 
+                          : Colors.blue,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 TextButton(
-                  onPressed: address.isDefault == true ? null : () => _showDeleteConfirmation(context, address),
+                  onPressed: address.isDefault == true
+                      ? null
+                      : () => _showDeleteConfirmation(context, address),
                   style: TextButton.styleFrom(
-                    foregroundColor: address.isDefault == true ? Colors.grey : Colors.red,
+                    foregroundColor: address.isDefault == true
+                        ? Colors.grey
+                        : Colors.red,
                   ),
-                  child: const Text('Delete'),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(
+                      color: address.isDefault == true
+                          ? Colors.grey
+                          : Colors.red,
+                    ),
+                  ),
                 ),
                 if (address.isDefault != true) ...[
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () => _setDefaultAddress(address),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFF2A2A2A)
+                          : Colors.black,
+                    ),
                     child: const Text('Set as Default'),
                   ),
                 ],
@@ -271,12 +297,30 @@ class _AddressesScreenState extends State<AddressesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Address'),
-          content: const Text('Are you sure you want to delete this address?'),
+          backgroundColor: Theme.of(context).dialogTheme.backgroundColor,
+          title: Text(
+            'Delete Address',
+            style: TextStyle(
+              color: Theme.of(context).dialogTheme.titleTextStyle?.color,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to delete this address?',
+            style: TextStyle(
+              color: Theme.of(context).dialogTheme.contentTextStyle?.color,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {

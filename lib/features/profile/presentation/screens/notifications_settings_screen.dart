@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../shared/providers/notification_provider.dart';
 
 class NotificationsSettingsScreen extends StatefulWidget {
   const NotificationsSettingsScreen({super.key});
@@ -10,17 +12,10 @@ class NotificationsSettingsScreen extends StatefulWidget {
 
 class _NotificationsSettingsScreenState
     extends State<NotificationsSettingsScreen> {
-  bool _notificationsEnabled = true;
-  bool _orderUpdates = true;
-  bool _promotions = true;
-  bool _priceAlerts = false;
-  bool _stockNotifications = true;
-  bool _emailNotifications = true;
-  bool _pushNotifications = true;
-  bool _smsNotifications = false;
-
   @override
   Widget build(BuildContext context) {
+    final notificationProvider = Provider.of<NotificationProvider>(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notification Settings'),
@@ -34,36 +29,19 @@ class _NotificationsSettingsScreenState
               'Enable Notifications',
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
-            value: _notificationsEnabled,
+            value: notificationProvider.notificationsEnabled,
             onChanged: (bool value) {
-              setState(() {
-                _notificationsEnabled = value;
-                if (!_notificationsEnabled) {
-                  _orderUpdates = false;
-                  _promotions = false;
-                  _priceAlerts = false;
-                  _stockNotifications = false;
-                  _emailNotifications = false;
-                  _pushNotifications = false;
-                  _smsNotifications = false;
-                } else {
-                  _orderUpdates = true;
-                  _promotions = true;
-                  _stockNotifications = true;
-                  _emailNotifications = true;
-                  _pushNotifications = true;
-                }
-              });
+              notificationProvider.setNotificationsEnabled(value);
             },
           ),
           const Divider(),
-          if (_notificationsEnabled) ..._buildNotificationSettings(),
+          if (notificationProvider.notificationsEnabled) ..._buildNotificationSettings(notificationProvider),
         ],
       ),
     );
   }
 
-  List<Widget> _buildNotificationSettings() {
+  List<Widget> _buildNotificationSettings(NotificationProvider notificationProvider) {
     return [
       const Padding(
         padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -79,48 +57,40 @@ class _NotificationsSettingsScreenState
       SwitchListTile(
         title: const Text('Order Updates'),
         subtitle: const Text('Order confirmations, shipping updates, etc.'),
-        value: _orderUpdates,
-        onChanged: _notificationsEnabled
+        value: notificationProvider.orderUpdates,
+        onChanged: notificationProvider.notificationsEnabled
             ? (bool value) {
-                setState(() {
-                  _orderUpdates = value;
-                });
+                notificationProvider.setOrderUpdates(value);
               }
             : null,
       ),
       SwitchListTile(
         title: const Text('Promotions & Offers'),
         subtitle: const Text('Special offers and discounts'),
-        value: _promotions,
-        onChanged: _notificationsEnabled
+        value: notificationProvider.promotions,
+        onChanged: notificationProvider.notificationsEnabled
             ? (bool value) {
-                setState(() {
-                  _promotions = value;
-                });
+                notificationProvider.setPromotions(value);
               }
             : null,
       ),
       SwitchListTile(
         title: const Text('Price Alerts'),
         subtitle: const Text('Get notified when prices drop on saved items'),
-        value: _priceAlerts,
-        onChanged: _notificationsEnabled
+        value: notificationProvider.priceAlerts,
+        onChanged: notificationProvider.notificationsEnabled
             ? (bool value) {
-                setState(() {
-                  _priceAlerts = value;
-                });
+                notificationProvider.setPriceAlerts(value);
               }
             : null,
       ),
       SwitchListTile(
         title: const Text('Back in Stock'),
         subtitle: const Text('Get notified when out-of-stock items are back'),
-        value: _stockNotifications,
-        onChanged: _notificationsEnabled
+        value: notificationProvider.stockNotifications,
+        onChanged: notificationProvider.notificationsEnabled
             ? (bool value) {
-                setState(() {
-                  _stockNotifications = value;
-                });
+                notificationProvider.setStockNotifications(value);
               }
             : null,
       ),
@@ -138,38 +108,32 @@ class _NotificationsSettingsScreenState
       ),
       SwitchListTile(
         title: const Text('Email Notifications'),
-        value: _emailNotifications,
-        onChanged: _notificationsEnabled
+        value: notificationProvider.emailNotifications,
+        onChanged: notificationProvider.notificationsEnabled
             ? (bool value) {
-                setState(() {
-                  _emailNotifications = value;
-                });
+                notificationProvider.setEmailNotifications(value);
               }
             : null,
       ),
       SwitchListTile(
         title: const Text('Push Notifications'),
-        value: _pushNotifications,
-        onChanged: _notificationsEnabled
+        value: notificationProvider.pushNotifications,
+        onChanged: notificationProvider.notificationsEnabled
             ? (bool value) {
-                setState(() {
-                  _pushNotifications = value;
-                });
+                notificationProvider.setPushNotifications(value);
               }
             : null,
       ),
       SwitchListTile(
         title: const Text('SMS Notifications'),
         subtitle: const Text('Standard message rates may apply'),
-        value: _smsNotifications,
-        onChanged: _notificationsEnabled
+        value: notificationProvider.smsNotifications,
+        onChanged: notificationProvider.notificationsEnabled
             ? (bool value) {
-                setState(() {
-                  _smsNotifications = value;
-                  if (_smsNotifications) {
-                    _showSmsConsentDialog();
-                  }
-                });
+                if (value) {
+                  _showSmsConsentDialog();
+                }
+                notificationProvider.setSmsNotifications(value);
               }
             : null,
       ),
@@ -178,9 +142,8 @@ class _NotificationsSettingsScreenState
         title: const Text('Notification Sound'),
         subtitle: const Text('Default (Chime)'),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-        onTap: _notificationsEnabled
+        onTap: notificationProvider.notificationsEnabled
             ? () {
-                // Show sound selection dialog
                 _showSoundSelectionDialog();
               }
             : null,
@@ -189,9 +152,8 @@ class _NotificationsSettingsScreenState
         title: const Text('Do Not Disturb'),
         subtitle: const Text('Off'),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-        onTap: _notificationsEnabled
+        onTap: notificationProvider.notificationsEnabled
             ? () {
-                // Show DND settings
                 _showDNDSettings();
               }
             : null,
@@ -201,8 +163,6 @@ class _NotificationsSettingsScreenState
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: ElevatedButton(
           onPressed: () {
-            // Save notification settings
-            _saveNotificationSettings();
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -238,17 +198,13 @@ class _NotificationsSettingsScreenState
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                setState(() {
-                  _smsNotifications = false;
-                });
               },
               child: const Text('CANCEL'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Implement SMS subscription logic
-                _enableSMSSubscription();
+                // SMS subscription is handled by the provider
               },
               child: const Text('AGREE'),
             ),
@@ -268,13 +224,4 @@ class _NotificationsSettingsScreenState
     debugPrint('Show DND settings');
   }
 
-  void _saveNotificationSettings() {
-    // Placeholder implementation for saving notification settings
-    debugPrint('Save notification settings');
-  }
-
-  void _enableSMSSubscription() {
-    // Placeholder implementation for enabling SMS subscription
-    debugPrint('Enable SMS subscription');
-  }
 }

@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'notifications_settings_screen.dart';
+import 'change_password_screen.dart';
+import 'terms_of_service_screen.dart';
+import 'privacy_policy_screen.dart';
+import '../../../../shared/providers/auth_provider.dart';
+import '../../../../shared/providers/theme_provider.dart';
+import '../../../../shared/providers/notification_provider.dart';
+import '../../../../features/auth/presentation/screens/login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -9,17 +19,37 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _darkMode = false;
-
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final notificationProvider = Provider.of<NotificationProvider>(context);
+    
+    // Only build if theme provider is initialized
+    if (!themeProvider.isInitialized) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: const Text('Settings'),
+          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+          foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
+          elevation: 0,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
       ),
       body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           _buildSectionHeader('Account Settings'),
           _buildListTile(
@@ -27,7 +57,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Edit Profile',
             icon: Icons.person_outline,
             onTap: () {
-              // Navigate to edit profile screen
               Navigator.pushNamed(context, '/edit-profile');
             },
           ),
@@ -36,27 +65,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Change Password',
             icon: Icons.lock_outline,
             onTap: () {
-              // Navigate to change password screen
-              Navigator.pushNamed(context, '/change-password');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChangePasswordScreen(),
+                ),
+              );
             },
           ),
           _buildSectionHeader('Preferences'),
-          SwitchListTile(
-            title: const Text('Dark Mode'),
-            secondary: const Icon(Icons.dark_mode_outlined),
-            value: _darkMode,
-            onChanged: (bool value) {
-              setState(() {
-                _darkMode = value;
-                // Theme change would be implemented here
-              });
-            },
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.grey.shade800 
+                    : Colors.grey.shade200,
+              ),
+            ),
+            child: SwitchListTile(
+              title: Text(
+                'Dark Mode',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
+              subtitle: Text(
+                'Reduce eye strain in low light',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
+              ),
+              secondary: Icon(
+                Icons.dark_mode_outlined,
+                color: themeProvider.isDarkMode 
+                    ? const Color(0xFF4CAF50)
+                    : Theme.of(context).iconTheme.color,
+              ),
+              value: themeProvider.isDarkMode,
+              onChanged: (bool value) {
+                // Add haptic feedback
+                HapticFeedback.lightImpact();
+                themeProvider.toggleTheme();
+              },
+              activeThumbColor: const Color(0xFF4CAF50),
+              inactiveThumbColor: Colors.grey.shade400,
+              inactiveTrackColor: Colors.grey.shade300,
+            ),
           ),
           _buildListTile(
             context,
             title: 'Notifications',
             icon: Icons.notifications_outlined,
-            trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+            trailing: notificationProvider.notificationsEnabled 
+                ? const Icon(Icons.check_circle, color: Colors.green)
+                : const Icon(Icons.circle_outlined, color: Colors.grey),
             onTap: () {
               Navigator.push(
                 context,
@@ -72,7 +139,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Help Center',
             icon: Icons.help_outline,
             onTap: () {
-              // Navigate to help center
               Navigator.pushNamed(context, '/help-center');
             },
           ),
@@ -98,8 +164,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Terms of Service',
             icon: Icons.description_outlined,
             onTap: () {
-              // Show terms of service
-              _showTermsOfService();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TermsOfServiceScreen(),
+                ),
+              );
             },
           ),
           _buildListTile(
@@ -107,8 +177,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Privacy Policy',
             icon: Icons.privacy_tip_outlined,
             onTap: () {
-              // Show privacy policy
-              _showPrivacyPolicy();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PrivacyPolicyScreen(),
+                ),
+              );
             },
           ),
           const SizedBox(height: 24),
@@ -116,8 +190,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: OutlinedButton(
               onPressed: () {
-                // Implement logout
-                _handleLogout();
+                _handleLogout(context);
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
@@ -134,7 +207,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Center(
             child: Text(
               'Version 1.0.0',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.grey.shade400 
+                    : Colors.grey.shade600, 
+                fontSize: 12,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -144,39 +222,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSectionHeader(String title) {
-    return Padding(
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
       child: Text(
         title,
         style: TextStyle(
-          color: Colors.grey[600],
           fontSize: 14,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Colors.grey.shade400 
+              : Colors.grey.shade600,
         ),
       ),
     );
   }
 
-  Widget _buildListTile(
-    BuildContext context, {
+  Widget _buildListTile(BuildContext context, {
     required String title,
     required IconData icon,
     Widget? trailing,
     required VoidCallback onTap,
   }) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: Colors.grey[200]!),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Colors.grey.shade800 
+              : Colors.grey.shade200,
+        ),
       ),
       child: ListTile(
-        leading: Icon(icon, color: Theme.of(context).primaryColor),
-        title: Text(title),
-        trailing:
-            trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
+        leading: Icon(
+          icon,
+          color: Theme.of(context).iconTheme.color,
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
+        ),
+        trailing: trailing ?? Icon(
+          Icons.chevron_right,
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Colors.grey.shade400 
+              : Colors.grey.shade600,
+        ),
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
@@ -184,9 +280,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showContactSupportBottomSheet(BuildContext context) {
+    final subjectController = TextEditingController();
+    final messageController = TextEditingController();
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).dialogTheme.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -201,22 +301,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Contact Support',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Subject',
-                border: OutlineInputBorder(),
+              style: TextStyle(
+                fontSize: 20, 
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).dialogTheme.titleTextStyle?.color,
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
-              decoration: const InputDecoration(
+              controller: subjectController,
+              style: TextStyle(
+                color: Theme.of(context).dialogTheme.contentTextStyle?.color,
+              ),
+              decoration: InputDecoration(
+                labelText: 'Subject',
+                labelStyle: TextStyle(
+                  color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey.shade700 
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey.shade700 
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.white 
+                        : Colors.black,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: messageController,
+              style: TextStyle(
+                color: Theme.of(context).dialogTheme.contentTextStyle?.color,
+              ),
+              decoration: InputDecoration(
                 labelText: 'Message',
-                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Theme.of(context).inputDecorationTheme.labelStyle?.color,
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey.shade700 
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey.shade700 
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.white 
+                        : Colors.black,
+                    width: 2,
+                  ),
+                ),
                 alignLabelWithHint: true,
               ),
               maxLines: 5,
@@ -226,13 +386,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.attach_file),
+                  icon: Icon(
+                    Icons.attach_file,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
                   onPressed: () {
-                    // Implement file attachment
                     _attachFile();
                   },
                 ),
-                const Text('Attach File'),
+                Text(
+                  'Attach File',
+                  style: TextStyle(
+                    color: Theme.of(context).dialogTheme.contentTextStyle?.color,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -241,15 +408,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  // Implement send message
-                  _sendMessage();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Your message has been sent to support'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                  if (subjectController.text.trim().isNotEmpty && 
+                      messageController.text.trim().isNotEmpty) {
+                    _sendMessage(context, subjectController.text, messageController.text);
+                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Please fill in all fields'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
                 },
                 child: const Text('Send Message'),
               ),
@@ -261,29 +431,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showTermsOfService() {
-    // Placeholder implementation for showing terms of service
-    debugPrint('Show terms of service');
-  }
 
-  void _showPrivacyPolicy() {
-    // Placeholder implementation for showing privacy policy
-    debugPrint('Show privacy policy');
-  }
-
-  void _handleLogout() {
-    // Placeholder implementation for logout
-    debugPrint('Handle logout');
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).dialogTheme.backgroundColor,
+          title: Text(
+            'Logout',
+            style: TextStyle(
+              color: Theme.of(context).dialogTheme.titleTextStyle?.color,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(
+              color: Theme.of(context).dialogTheme.contentTextStyle?.color,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark 
+                      ? Colors.white 
+                      : Colors.black,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                authProvider.logout();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+              child: const Text('Logout', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _attachFile() {
-    // Placeholder implementation for file attachment
-    debugPrint('Attach file');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('File attachment coming soon!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
-  void _sendMessage() {
-    // Placeholder implementation for sending message
-    debugPrint('Send message');
+  void _sendMessage(BuildContext context, String subject, String message) async {
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final userEmail = authProvider.currentUser?.email ?? 'anonymous@gearghar.com';
+      
+      final Uri emailUri = Uri(
+        scheme: 'mailto',
+        path: 'support@gearghar.com',
+        query: 'subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent('From: $userEmail\n\n$message')}',
+      );
+      
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Opening email client...'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open email client'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showAboutDialog(BuildContext context) {

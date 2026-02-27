@@ -37,8 +37,15 @@ class _MainScreenState extends State<MainScreen> {
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
               onPressed: () {},
-              backgroundColor: Colors.black,
-              child: const Icon(Icons.shopping_cart, color: Colors.white),
+              backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                  ? const Color(0xFF2A2A2A)
+                  : Colors.black,
+              child: Icon(
+                Icons.shopping_cart, 
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.white 
+                    : Colors.white,
+              ),
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

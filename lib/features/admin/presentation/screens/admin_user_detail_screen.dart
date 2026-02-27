@@ -77,13 +77,11 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
 
     if (confirmed == true && _user != null) {
       final success = await context.read<AdminProvider>().deleteUser(_user!.id);
-      if (success) {
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User deleted successfully')),
-          );
-        }
+      if (success && mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User deleted successfully')),
+        );
       }
     }
   }
@@ -115,165 +113,149 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
           ],
         ],
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _errorMessage!,
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadUser,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_user == null) {
-      return const Center(
-        child: Text('User not found'),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Profile Section
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.blue.shade100,
-                    backgroundImage: _user!.profilePicture != null
-                        ? NetworkImage(_user!.profilePicture!)
-                        : null,
-                    child: _user!.profilePicture == null
-                        ? Text(
-                            _user!.firstName.isNotEmpty 
-                                ? _user!.firstName[0].toUpperCase()
-                                : 'U',
-                            style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.blue.shade700,
-                              fontWeight: FontWeight.bold,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Error loading user',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(_errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadUser,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : _user == null
+                  ? const Center(
+                      child: Text('User not found'),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Profile Section
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colors.blue.shade100,
+                                    backgroundImage: _user!.profilePicture != null
+                                        ? NetworkImage(_user!.profilePicture!)
+                                        : null,
+                                    child: _user!.profilePicture == null
+                                        ? Text(
+                                            _user!.firstName.isNotEmpty 
+                                                ? _user!.firstName[0].toUpperCase()
+                                                : 'U',
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              color: Colors.blue.shade700,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    _user!.fullName,
+                                    style: Theme.of(context).textTheme.headlineSmall,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _user!.email,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _user!.fullName,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          // User Information
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'User Information',
+                                    style: Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildInfoRow('User ID', _user!.id),
+                                  _buildInfoRow('First Name', _user!.firstName),
+                                  _buildInfoRow('Last Name', _user!.lastName),
+                                  if (_user!.name != null) 
+                                    _buildInfoRow('Full Name', _user!.name!),
+                                  if (_user!.username != null) 
+                                    _buildInfoRow('Username', _user!.username!),
+                                  if (_user!.phoneNumber != null) 
+                                    _buildInfoRow('Phone Number', _user!.phoneNumber!),
+                                  _buildInfoRow('Email', _user!.email),
+                                  _buildInfoRow('Role', _user!.role.toUpperCase()),
+                                  _buildInfoRow('Status', _user!.status.toUpperCase()),
+                                ],
+                              ),
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          // System Information
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'System Information',
+                                    style: Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildInfoRow(
+                                    'Created At',
+                                    _formatDateTime(_user!.createdAt),
+                                  ),
+                                  _buildInfoRow(
+                                    'Last Updated',
+                                    _formatDateTime(_user!.updatedAt),
+                                  ),
+                                  if (_user!.lastLogin != null)
+                                    _buildInfoRow(
+                                      'Last Login',
+                                      _formatDateTime(_user!.lastLogin!),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _user!.email,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // User Information
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'User Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildInfoRow('User ID', _user!.id),
-                  _buildInfoRow('First Name', _user!.firstName),
-                  _buildInfoRow('Last Name', _user!.lastName),
-                  if (_user!.name != null) 
-                    _buildInfoRow('Full Name', _user!.name!),
-                  if (_user!.username != null) 
-                    _buildInfoRow('Username', _user!.username!),
-                  if (_user!.phoneNumber != null) 
-                    _buildInfoRow('Phone Number', _user!.phoneNumber!),
-                  _buildInfoRow('Email', _user!.email),
-                  _buildInfoRow('Role', _user!.role.toUpperCase()),
-                  _buildInfoRow('Status', _user!.status.toUpperCase()),
-                ],
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // System Information
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'System Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildInfoRow(
-                    'Created At',
-                    _formatDateTime(_user!.createdAt),
-                  ),
-                  _buildInfoRow(
-                    'Last Updated',
-                    _formatDateTime(_user!.updatedAt),
-                  ),
-                  if (_user!.lastLogin != null)
-                    _buildInfoRow(
-                      'Last Login',
-                      _formatDateTime(_user!.lastLogin!),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

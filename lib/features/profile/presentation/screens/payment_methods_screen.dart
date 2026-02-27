@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gear_ghar/shared/widgets/primary_app_bar.dart';
 import '../../../../core/models/payment_method_model.dart';
 import '../../../../core/services/payment_method_api_service.dart';
 import 'add_edit_payment_method_screen.dart';
@@ -93,72 +94,68 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment Methods'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: PrimaryAppBar(title: 'Payment Methods'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Error loading payment methods',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(_error!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadPaymentMethods,
-                        child: const Text('Retry'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Error loading payment methods',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                )
-              : _paymentMethods.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.payment_outlined,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No payment methods yet',
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('Add your first payment method to get started'),
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () => _navigateToAddEditPaymentMethod(),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add Payment Method'),
-                          ),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _loadPaymentMethods,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: _paymentMethods.length,
-                        itemBuilder: (context, index) {
-                          final paymentMethod = _paymentMethods[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: _buildPaymentMethodCard(context, paymentMethod),
-                          );
-                        },
-                      ),
-                    ),
+                  const SizedBox(height: 8),
+                  Text(_error!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadPaymentMethods,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : _paymentMethods.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.payment_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No payment methods yet',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text('Add your first payment method to get started'),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => _navigateToAddEditPaymentMethod(),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Payment Method'),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadPaymentMethods,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _paymentMethods.length,
+                itemBuilder: (context, index) {
+                  final paymentMethod = _paymentMethods[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: _buildPaymentMethodCard(context, paymentMethod),
+                  );
+                },
+              ),
+            ),
       floatingActionButton: _paymentMethods.isNotEmpty
           ? FloatingActionButton(
               onPressed: () => _navigateToAddEditPaymentMethod(),
@@ -168,7 +165,10 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     );
   }
 
-  Widget _buildPaymentMethodCard(BuildContext context, PaymentMethod paymentMethod) {
+  Widget _buildPaymentMethodCard(
+    BuildContext context,
+    PaymentMethod paymentMethod,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -208,7 +208,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -229,10 +231,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 if (paymentMethod.expiryDate.isNotEmpty)
                   Text(
                     'Expires ${paymentMethod.expiryDate}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
                   )
                 else
                   const SizedBox.shrink(),
@@ -240,7 +239,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),
-                      onPressed: () => _navigateToAddEditPaymentMethod(paymentMethod: paymentMethod),
+                      onPressed: () => _navigateToAddEditPaymentMethod(
+                        paymentMethod: paymentMethod,
+                      ),
                       color: Colors.grey[600],
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -248,10 +249,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 20),
-                      onPressed: paymentMethod.isDefault == true 
-                          ? null 
-                          : () => _showDeleteConfirmation(context, paymentMethod),
-                      color: paymentMethod.isDefault == true ? Colors.grey[400] : Colors.red[400],
+                      onPressed: paymentMethod.isDefault == true
+                          ? null
+                          : () =>
+                                _showDeleteConfirmation(context, paymentMethod),
+                      color: paymentMethod.isDefault == true
+                          ? Colors.grey[400]
+                          : Colors.red[400],
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -283,7 +287,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             'assets/images/visa.png',
             height: 24,
             width: 40,
-            errorBuilder: (context, error, stackTrace) => 
+            errorBuilder: (context, error, stackTrace) =>
                 const Icon(Icons.credit_card, size: 24),
           );
         } else if (paymentMethod.cardType == 'MASTERCARD') {
@@ -291,7 +295,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             'assets/images/mastercard.png',
             height: 24,
             width: 40,
-            errorBuilder: (context, error, stackTrace) => 
+            errorBuilder: (context, error, stackTrace) =>
                 const Icon(Icons.credit_card, size: 24),
           );
         }
@@ -301,7 +305,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
           'assets/images/paypal.png',
           height: 24,
           width: 24,
-          errorBuilder: (context, error, stackTrace) => 
+          errorBuilder: (context, error, stackTrace) =>
               const Icon(Icons.payment, size: 24),
         );
       case 'bank_account':
@@ -315,18 +319,24 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditPaymentMethodScreen(paymentMethod: paymentMethod),
+        builder: (context) =>
+            AddEditPaymentMethodScreen(paymentMethod: paymentMethod),
       ),
     ).then((_) => _loadPaymentMethods());
   }
 
-  void _showDeleteConfirmation(BuildContext context, PaymentMethod paymentMethod) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    PaymentMethod paymentMethod,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Remove Payment Method'),
-          content: const Text('Are you sure you want to remove this payment method?'),
+          content: const Text(
+            'Are you sure you want to remove this payment method?',
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
